@@ -1,3 +1,4 @@
+package Tasks;
 import java.util.HashMap;
 
 public class EpicTask extends Task {
@@ -8,10 +9,12 @@ public class EpicTask extends Task {
         super();
     }
 
-    protected EpicTask(String name, String description, int id, TaskStatus status, HashMap<Integer,
-            SubTask> storageSubtask) {
+    public EpicTask(String name, String description, int id, TaskStatus status) {
         super(name, description, id, status);
-        this.storageSubtask = storageSubtask;
+    }
+
+    public EpicTask(String name, String description, TaskStatus status) {
+        super(name, description,status);
     }
 
     //геттер списка подзадач SubTask
@@ -24,8 +27,12 @@ public class EpicTask extends Task {
         this.storageSubtask = storageSubtask;
     }
 
-    void addSubtaskToEpicTask(SubTask subTask){
+    public void addSubtaskToEpicTask(SubTask subTask){
         storageSubtask.put(subTask.getId(), subTask);
+    }
+
+    public void eraseStorageSubTask() {
+        storageSubtask.clear();
     }
 
     @Override

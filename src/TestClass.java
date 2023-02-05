@@ -1,7 +1,9 @@
+import Manager.Manager;
+import Tasks.*;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class TestClass {
+class TestClass {
     Scanner scanner = new Scanner(System.in);
     //Простые задачи
     Task taskTest1 = new Task("First Task", "First simple task for example", 1, TaskStatus.NEW);
@@ -17,29 +19,28 @@ public class TestClass {
             TaskStatus.DONE, 7);
     SubTask subTaskTest4 = new SubTask("Fourth SubTask", "Fourth subtask for example", 7,
             TaskStatus.NEW, 5);
-    SubTask updateSubTaskTest1 = new SubTask("Updated SubTask", "Updated subtask for example", 5,
-            TaskStatus.DONE, 4);
+    SubTask updateSubTaskTest1 = new SubTask();
     //создаем списки подзадача
     HashMap<Integer, SubTask> testStorageSubtask1 = new HashMap<>();
     HashMap<Integer, SubTask> testStorageSubtask2 = new HashMap<>();
     //Epic задачи
-    EpicTask epicTaskTest1 = new EpicTask("First EpicTask", "First epictask for example", 8,
-            TaskStatus.NEW, testStorageSubtask1);
-    EpicTask epicTaskTest2 = new EpicTask("Second EpicTask", "Second epictask for example", 9,
-            TaskStatus.IN_PROGRESS, testStorageSubtask2);
-    EpicTask updateEpicTaskTest2 = new EpicTask("Updated EpicTask", "Updated epictask for example", 7,
-            TaskStatus.IN_PROGRESS, testStorageSubtask1);
+    EpicTask epicTaskTest1 = new EpicTask("First EpicTask", "First epictask for example",
+            TaskStatus.NEW);
+    EpicTask epicTaskTest2 = new EpicTask("Second EpicTask", "Second epictask for example",
+            TaskStatus.IN_PROGRESS);
+    EpicTask updateEpicTaskTest2 = new EpicTask("Updated EpicTask", "Updated epictask for example",
+            TaskStatus.IN_PROGRESS);
 
-    void setHashMap1(){
+    protected void setHashMap1(){
         testStorageSubtask1.put(subTaskTest1.getId(), subTaskTest1);
         testStorageSubtask1.put(subTaskTest3.getId(), subTaskTest3);
     }
 
-    void setHashMap2(){
+    protected void setHashMap2(){
         testStorageSubtask2.put(subTaskTest2.getId(), subTaskTest2);
     }
 
-    void printMenu() {
+    public void printMenu() {
         // Вывод доступных команд
         System.out.println("______");
         System.out.println("Введите команду");
@@ -63,30 +64,30 @@ public class TestClass {
         System.out.println("0 - Выйти из приложения");
     }
 
-    void startTest(Manager manager) {
+    public void startTest(Manager manager) {
         while (true) {
             printMenu(); //вывод меню
             int numberMenu = scanner.nextInt();
 
             if (numberMenu == 1) {
-                System.out.println(manager.getStorageTask().keySet());
+                System.out.println(manager.getStorageTask());
                 manager.createTask(taskTest1);
                 manager.createTask(taskTest2);
                 manager.createTask(taskTest3);
-                System.out.println("Задачи Task добавлены" + manager.getStorageTask().keySet());
+                System.out.println("Задачи Task добавлены" + manager.getStorageTask());
                 System.out.println("Счетчик id = " + manager.getId());
 
             } else if (numberMenu == 2) {
-                System.out.println(manager.getStorageEpicTask().keySet());
+                System.out.println(manager.getStorageEpicTask());
                 manager.createEpicTask(epicTaskTest1);
                 manager.createEpicTask(epicTaskTest2);
-                System.out.println("Задачи EpicTask добавлены" + manager.getStorageEpicTask().keySet());
+                System.out.println("Задачи EpicTask добавлены" + manager.getStorageEpicTask());
                 System.out.println("Счетчик id = " + manager.getId());
 
             } else if (numberMenu == 3) {
-                System.out.println(manager.getStorageSubTask().keySet());
+                System.out.println(manager.getStorageSubTask());
                 manager.createSubTask(subTaskTest4);
-                System.out.println("Задачи SubTask добавлены" + manager.getStorageSubTask().keySet());
+                System.out.println("Задачи SubTask добавлены" + manager.getStorageSubTask());
                 System.out.println("Счетчик id = " + manager.getId());
 
             } else if (numberMenu == 4) {
@@ -94,10 +95,30 @@ public class TestClass {
                 System.out.println("Счетчик id = " + manager.getId());
 
             } else if (numberMenu == 5) {
+                System.out.println("Введите обновляемый Epic id");
+                updateEpicTaskTest2.setId(scanner.nextInt());
                 manager.updateEpicTask(updateEpicTaskTest2);
                 System.out.println("Счетчик id = " + manager.getId());
 
             } else if (numberMenu == 6) {
+                System.out.println("Введите обновляемый SubTask id");
+                updateSubTaskTest1.setId(scanner.nextInt());
+                System.out.println("Введите обновляемый EpicTask id");
+                updateSubTaskTest1.setIdEpicTask(scanner.nextInt());
+                updateSubTaskTest1.setDescription("Updated subtask for example");
+                updateSubTaskTest1.setName("Updated SubTask");
+                System.out.println("Введите статус SubTask (1 - NEW, 2 - IN_PROGRESS, 3 - DONE)");
+                switch (scanner.nextInt()) {
+                    case 1:
+                        updateSubTaskTest1.setStatus(TaskStatus.NEW);
+                        break;
+                    case 2:
+                        updateSubTaskTest1.setStatus(TaskStatus.IN_PROGRESS);
+                        break;
+                    case 3:
+                        updateSubTaskTest1.setStatus(TaskStatus.DONE);
+                        break;
+                }
                 manager.updateSubTask(updateSubTaskTest1);
                 System.out.println("Счетчик id = " + manager.getId());
 
@@ -132,14 +153,14 @@ public class TestClass {
                 System.out.println(manager.getSubTaskById(scanner.nextInt()));
 
             } else if (numberMenu == 16) {
-                System.out.println("Список задач Task =" + manager.getStorageTask().keySet());
-                System.out.println("Список задач EpicTask =" + manager.getStorageEpicTask().keySet());
-                System.out.println("Список задач SubTask =" + manager.getStorageSubTask().keySet());
+                System.out.println("Список задач Task =" + manager.getStorageTask());
+                System.out.println("Список задач EpicTask =" + manager.getStorageEpicTask());
+                System.out.println("Список задач SubTask =" + manager.getStorageSubTask());
                 System.out.println("Введите id для удачения задачи");
                 manager.deleteAnyTaskById(scanner.nextInt());
-                System.out.println("Список задач Task =" + manager.getStorageTask().keySet());
-                System.out.println("Список задач EpicTask =" + manager.getStorageEpicTask().keySet());
-                System.out.println("Список задач SubTask =" + manager.getStorageSubTask().keySet());
+                System.out.println("Список задач Task =" + manager.getStorageTask());
+                System.out.println("Список задач EpicTask =" + manager.getStorageEpicTask());
+                System.out.println("Список задач SubTask =" + manager.getStorageSubTask());
 
             } else if (numberMenu == 17) {
                 System.out.println("Введите id EpicTask для получения списка SubTask");

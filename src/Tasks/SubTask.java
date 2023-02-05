@@ -1,3 +1,4 @@
+package Tasks;
 public class SubTask extends Task{
    private int idEpicTask;
 
@@ -5,8 +6,13 @@ public class SubTask extends Task{
         super();
     }
 
-    protected SubTask(String name, String description, int id, TaskStatus status, int idEpicTask) {
+    public SubTask(String name, String description, int id, TaskStatus status, int idEpicTask) {
         super(name, description, id, status);
+        this.idEpicTask = idEpicTask;
+    }
+
+    public SubTask(String name, String description, TaskStatus status, int idEpicTask) {
+        super(name, description, status);
         this.idEpicTask = idEpicTask;
     }
 
