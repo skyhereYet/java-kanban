@@ -4,7 +4,7 @@ import Tasks.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Manager {
+public class InMemoryTaskManager implements TaskManager {
     //Хранилище простых задач Task
     private HashMap<Integer, Task> storageTask = new HashMap<>();
     //Хранилище EpicTask
@@ -12,18 +12,29 @@ public class Manager {
     //Хранилище SubTask
     private HashMap<Integer, SubTask> storageSubTask = new HashMap<>();
     private int id = 0;
+    //создаем хранилище истории
+    private HistoryManager storageHistory;
 
+
+    //Конструктор
+    InMemoryTaskManager(HistoryManager storageHistory) {
+        this.storageHistory = storageHistory;
+    }
+
+    @Override
     public int getId() {
         return id;
     }
 
     //создаем задачу Task на основе входящего объекта
+    @Override
     public void createTask(Task task) {
         task.setId(createId());
         storageTask.put(task.getId(), task);
     }
 
     //создаем задачу EpicTask на основе входящего объекта
+    @Override
     public void createEpicTask(EpicTask task) {
         task.setId(createId());
         storageEpicTask.put(id, task);
@@ -32,6 +43,7 @@ public class Manager {
     }
 
     //создаем задачу SubTask на основе входящего объекта
+    @Override
     public void createSubTask(SubTask task) {
         task.setId(createId());
         storageSubTask.put(task.getId(), task);
@@ -47,6 +59,7 @@ public class Manager {
     }
 
     //метод обновления задачи Task на основе входящего объекта
+    @Override
     public void updateTask(Task task) {
         if (storageTask.containsKey(task.getId())) {
             storageTask.put(task.getId(), task);
@@ -54,6 +67,7 @@ public class Manager {
     }
 
     //метод обновления задачи EpicTask на основе входящего объекта
+    @Override
     public void updateEpicTask(EpicTask task) {
         if (storageEpicTask.containsKey(task.getId())) {
             //удаляем подзадачи, т.к. они могут быть удалены в новом EpicTask
@@ -79,6 +93,7 @@ public class Manager {
     }
 
     //метод обновления задачи SubTask в т.ч. в EpicTask
+    @Override
     public void updateSubTask(SubTask task) {
         if (storageSubTask.containsKey(task.getId())) {
             int oldIdEpicTask = storageSubTask.get(task.getId()).getIdEpicTask();
@@ -108,6 +123,7 @@ public class Manager {
     }
 
     //метод обновления статуса
+    @Override
     public TaskStatus statusCheckerEpicTask(EpicTask changeEpicTask) {
         TaskStatus status = null;
         for (Integer Key : changeEpicTask.getStorageSubtask().keySet()) {
@@ -128,11 +144,13 @@ public class Manager {
     }
 
     //метод создания уникального id
-    private int createId(){
+    @Override
+    public int createId(){
         return ++id;
     }
 
     //метод возврата списка Task
+    @Override
     public ArrayList<Task> getStorageTask() {
         ArrayList<Task> listTask = new ArrayList<>();
         for (Integer key : storageTask.keySet()) {
@@ -142,6 +160,7 @@ public class Manager {
     }
 
     //метод возврата списка EpicTask
+    @Override
     public ArrayList<EpicTask> getStorageEpicTask() {
         ArrayList<EpicTask> listEpicTask = new ArrayList<>();
         for (Integer key : storageEpicTask.keySet()) {
@@ -151,6 +170,7 @@ public class Manager {
     }
 
     //метод возврата списка SubTask
+    @Override
     public ArrayList<SubTask> getStorageSubTask() {
         ArrayList<SubTask> listSubTask = new ArrayList<>();
         for (Integer key : storageSubTask.keySet()) {
@@ -160,17 +180,20 @@ public class Manager {
     }
 
     //очистка хранилища задач Task
+    @Override
     public void eraseStorageTask(){
         storageTask.clear();
     }
 
     //очистка хранилища задач EpicTask
+    @Override
     public void eraseStorageEpicTask(){
         storageEpicTask.clear();
         eraseStorageSubTask();
     }
 
     //очистка хранилища задач SubTask
+    @Override
     public void eraseStorageSubTask(){
         storageSubTask.clear();
         for (Integer key : storageEpicTask.keySet()) {
@@ -180,21 +203,28 @@ public class Manager {
     }
 
     //получение Task по id
+    @Override
     public Task getTaskById (int idSearch) {
+        storageHistory.add(storageTask.get(idSearch));
         return storageTask.get(idSearch);
     }
 
     //получение EpicTask по id
+    @Override
     public EpicTask getEpicTaskById (int idSearch) {
+        storageHistory.add(storageEpicTask.get(idSearch));
         return storageEpicTask.get(idSearch);
     }
 
     //получение SubTask по id
+    @Override
     public Task getSubTaskById (int idSearch) {
+        storageHistory.add(storageSubTask.get(idSearch));
         return storageSubTask.get(idSearch);
     }
 
     //удалить любую задачу по id
+    @Override
     public void deleteAnyTaskById (int idSearch) {
         if (storageTask.containsKey(idSearch)) {
             storageTask.remove(idSearch);
@@ -215,6 +245,7 @@ public class Manager {
     }
 
     //вывести список подзадач EpicTask по id
+    @Override
     public ArrayList<SubTask> getSubTaskByEpicId (int idSearch) {
         if (storageEpicTask.containsKey(idSearch)) {
             ArrayList<SubTask> listSubTask = new ArrayList<>();
@@ -224,5 +255,10 @@ public class Manager {
             return listSubTask;
         }
         return null;
+    }
+
+    @Override
+    public InMemoryHistoryManager getStorageHistory() {
+        return (InMemoryHistoryManager) storageHistory;
     }
 }

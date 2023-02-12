@@ -1,4 +1,5 @@
-import Manager.Manager;
+import Manager.InMemoryTaskManager;
+import Manager.TaskManager;
 import Tasks.*;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -61,44 +62,45 @@ class TestClass {
         System.out.println("15 - Получить SubTask по id");
         System.out.println("16 - Удалить задачу по id");
         System.out.println("17 - Вывести список SubTask по id EpicTask");
+        System.out.println("18 - Вывести историю просмотров");
         System.out.println("0 - Выйти из приложения");
     }
 
-    public void startTest(Manager manager) {
+    public void startTest(InMemoryTaskManager taskManager) {
         while (true) {
             printMenu(); //вывод меню
             int numberMenu = scanner.nextInt();
 
             if (numberMenu == 1) {
-                System.out.println(manager.getStorageTask());
-                manager.createTask(taskTest1);
-                manager.createTask(taskTest2);
-                manager.createTask(taskTest3);
-                System.out.println("Задачи Task добавлены" + manager.getStorageTask());
-                System.out.println("Счетчик id = " + manager.getId());
+                System.out.println(taskManager.getStorageTask());
+                taskManager.createTask(taskTest1);
+                taskManager.createTask(taskTest2);
+                taskManager.createTask(taskTest3);
+                System.out.println("Задачи Task добавлены" + taskManager.getStorageTask());
+                System.out.println("Счетчик id = " + taskManager.getId());
 
             } else if (numberMenu == 2) {
-                System.out.println(manager.getStorageEpicTask());
-                manager.createEpicTask(epicTaskTest1);
-                manager.createEpicTask(epicTaskTest2);
-                System.out.println("Задачи EpicTask добавлены" + manager.getStorageEpicTask());
-                System.out.println("Счетчик id = " + manager.getId());
+                System.out.println(taskManager.getStorageEpicTask());
+                taskManager.createEpicTask(epicTaskTest1);
+                taskManager.createEpicTask(epicTaskTest2);
+                System.out.println("Задачи EpicTask добавлены" + taskManager.getStorageEpicTask());
+                System.out.println("Счетчик id = " + taskManager.getId());
 
             } else if (numberMenu == 3) {
-                System.out.println(manager.getStorageSubTask());
-                manager.createSubTask(subTaskTest4);
-                System.out.println("Задачи SubTask добавлены" + manager.getStorageSubTask());
-                System.out.println("Счетчик id = " + manager.getId());
+                System.out.println(taskManager.getStorageSubTask());
+                taskManager.createSubTask(subTaskTest4);
+                System.out.println("Задачи SubTask добавлены" + taskManager.getStorageSubTask());
+                System.out.println("Счетчик id = " + taskManager.getId());
 
             } else if (numberMenu == 4) {
-                manager.updateTask(updateTaskTest1);
-                System.out.println("Счетчик id = " + manager.getId());
+                taskManager.updateTask(updateTaskTest1);
+                System.out.println("Счетчик id = " + taskManager.getId());
 
             } else if (numberMenu == 5) {
                 System.out.println("Введите обновляемый Epic id");
                 updateEpicTaskTest2.setId(scanner.nextInt());
-                manager.updateEpicTask(updateEpicTaskTest2);
-                System.out.println("Счетчик id = " + manager.getId());
+                taskManager.updateEpicTask(updateEpicTaskTest2);
+                System.out.println("Счетчик id = " + taskManager.getId());
 
             } else if (numberMenu == 6) {
                 System.out.println("Введите обновляемый SubTask id");
@@ -119,52 +121,60 @@ class TestClass {
                         updateSubTaskTest1.setStatus(TaskStatus.DONE);
                         break;
                 }
-                manager.updateSubTask(updateSubTaskTest1);
-                System.out.println("Счетчик id = " + manager.getId());
+                taskManager.updateSubTask(updateSubTaskTest1);
+                System.out.println("Счетчик id = " + taskManager.getId());
 
             } else if (numberMenu == 7) {
-                manager.eraseStorageTask();
+                taskManager.eraseStorageTask();
 
             } else if (numberMenu == 8) {
-                manager.eraseStorageEpicTask();
+                taskManager.eraseStorageEpicTask();
 
             } else if (numberMenu == 9) {
-                manager.eraseStorageSubTask();
+                taskManager.eraseStorageSubTask();
 
             } else if (numberMenu == 10) {
-                System.out.println(manager.getStorageTask());
+                System.out.println(taskManager.getStorageTask());
 
             } else if (numberMenu == 11) {
-                System.out.println(manager.getStorageEpicTask());
+                System.out.println(taskManager.getStorageEpicTask());
 
             } else if (numberMenu == 12) {
-                System.out.println(manager.getStorageSubTask());
+                System.out.println(taskManager.getStorageSubTask());
 
             } else if (numberMenu == 13) {
                 System.out.println("Введите id Task для получения Task");
-                System.out.println(manager.getTaskById(scanner.nextInt()));
+                System.out.println(taskManager.getTaskById(scanner.nextInt()));
+                getHistory(taskManager);
 
             } else if (numberMenu == 14) {
                 System.out.println("Введите id EpicTask для получения EpicTask");
-                System.out.println(manager.getEpicTaskById(scanner.nextInt()));
+                System.out.println(taskManager.getEpicTaskById(scanner.nextInt()));
+                getHistory(taskManager);
 
             } else if (numberMenu == 15) {
                 System.out.println("Введите id SubTask для получения SubTask");
-                System.out.println(manager.getSubTaskById(scanner.nextInt()));
+                System.out.println(taskManager.getSubTaskById(scanner.nextInt()));
+                getHistory(taskManager);
 
             } else if (numberMenu == 16) {
-                System.out.println("Список задач Task =" + manager.getStorageTask());
-                System.out.println("Список задач EpicTask =" + manager.getStorageEpicTask());
-                System.out.println("Список задач SubTask =" + manager.getStorageSubTask());
+                System.out.println("Список задач Task =" + taskManager.getStorageTask());
+                System.out.println("Список задач EpicTask =" + taskManager.getStorageEpicTask());
+                System.out.println("Список задач SubTask =" + taskManager.getStorageSubTask());
                 System.out.println("Введите id для удачения задачи");
-                manager.deleteAnyTaskById(scanner.nextInt());
-                System.out.println("Список задач Task =" + manager.getStorageTask());
-                System.out.println("Список задач EpicTask =" + manager.getStorageEpicTask());
-                System.out.println("Список задач SubTask =" + manager.getStorageSubTask());
+                taskManager.deleteAnyTaskById(scanner.nextInt());
+                System.out.println("Список задач Task =" + taskManager.getStorageTask());
+                System.out.println("Список задач EpicTask =" + taskManager.getStorageEpicTask());
+                System.out.println("Список задач SubTask =" + taskManager.getStorageSubTask());
 
             } else if (numberMenu == 17) {
                 System.out.println("Введите id EpicTask для получения списка SubTask");
-                System.out.println(manager.getSubTaskByEpicId(scanner.nextInt()));
+                System.out.println(taskManager.getSubTaskByEpicId(scanner.nextInt()));
+
+            } else if (numberMenu == 18) {
+                System.out.println("Показать историю просмотра задач");
+                getHistory(taskManager);
+
 
             } else if (numberMenu == 0) {
                 //Выход
@@ -176,5 +186,13 @@ class TestClass {
                 System.out.println("Такой команды нет");
             }
         }
+    }
+
+    public void getHistory(TaskManager taskManager){
+        System.out.print("История просмотра: ");
+        for (Task task : taskManager.getStorageHistory().getHistory()){
+            System.out.print(task.getId() + ", ");
+        }
+        System.out.println("\n");
     }
 }

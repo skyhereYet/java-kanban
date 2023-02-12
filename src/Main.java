@@ -1,4 +1,6 @@
-import Manager.Manager;
+import Manager.InMemoryTaskManager;
+import Manager.Managers;
+import Manager.TaskManager;
 
 public class Main {
     public static void main(String[] args) {
@@ -7,7 +9,10 @@ public class Main {
         testClass.setHashMap1();
         testClass.setHashMap2();
         //конец формирования теста
-        Manager manager = new Manager();
-        testClass.startTest(manager);
+        //InMemoryTaskManager taskManager = new InMemoryTaskManager();
+        Managers<TaskManager> manager = new Managers<>();
+        InMemoryTaskManager taskManager = (InMemoryTaskManager) manager.getDefault();
+
+        testClass.startTest(taskManager);
     }
 }
