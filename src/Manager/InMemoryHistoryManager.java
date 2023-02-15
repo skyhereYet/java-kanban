@@ -7,7 +7,7 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager{
     //Хранилище истории просмотров
-    private List<Task> storageHistory = new ArrayList<>();
+    private final List<Task> storageHistory = new ArrayList<>();
 
     @Override
     public List<Task> getHistory() {
