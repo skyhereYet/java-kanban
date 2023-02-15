@@ -2,6 +2,7 @@ package Manager;
 
 import Tasks.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
 
@@ -65,5 +66,5 @@ public interface TaskManager {
     ArrayList<SubTask> getSubTaskByEpicId (int idSearch);
 
     //геттер хранилища истории
-    HistoryManager getHistory();
+    HistoryManager<List<Task>> getHistory();
 }

@@ -5,7 +5,7 @@ import Tasks.Task;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InMemoryHistoryManager implements HistoryManager{
+public class InMemoryHistoryManager implements HistoryManager {
     //Хранилище истории просмотров
     private final List<Task> storageHistory = new ArrayList<>();
 

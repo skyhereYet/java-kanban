@@ -4,7 +4,7 @@ import Tasks.Task;
 
 import java.util.List;
 
-public interface HistoryManager {
+public interface HistoryManager<T extends List<Task>> {
     //вывести историю просмотров задач
     List<Task> getHistory();
 

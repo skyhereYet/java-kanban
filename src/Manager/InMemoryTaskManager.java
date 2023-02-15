@@ -3,6 +3,7 @@ package Manager;
 import Tasks.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     //Хранилище простых задач Task
@@ -253,7 +254,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //геттер хранилища истории
     @Override
-    public HistoryManager getHistory() {
+    public HistoryManager<List<Task>> getHistory() {
         return storageHistory;
     }
 }
