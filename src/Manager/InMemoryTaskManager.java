@@ -13,13 +13,7 @@ public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, SubTask> storageSubTask = new HashMap<>();
     private int id = 0;
     //создаем хранилище истории
-    private HistoryManager storageHistory;
-
-
-    //Конструктор
-    InMemoryTaskManager(HistoryManager storageHistory) {
-        this.storageHistory = storageHistory;
-    }
+    private HistoryManager storageHistory = Managers.getDefaultHistory();
 
     @Override
     public int getId() {
@@ -257,8 +251,9 @@ public class InMemoryTaskManager implements TaskManager {
         return null;
     }
 
+    //геттер хранилища истории
     @Override
-    public InMemoryHistoryManager getStorageHistory() {
-        return (InMemoryHistoryManager) storageHistory;
+    public HistoryManager getHistory() {
+        return storageHistory;
     }
 }

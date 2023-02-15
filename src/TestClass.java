@@ -1,4 +1,3 @@
-import Manager.InMemoryTaskManager;
 import Manager.TaskManager;
 import Tasks.*;
 import java.util.HashMap;
@@ -66,7 +65,7 @@ class TestClass {
         System.out.println("0 - Выйти из приложения");
     }
 
-    public void startTest(InMemoryTaskManager taskManager) {
+    public void startTest(TaskManager taskManager) {
         while (true) {
             printMenu(); //вывод меню
             int numberMenu = scanner.nextInt();
@@ -190,7 +189,7 @@ class TestClass {
 
     public void getHistory(TaskManager taskManager){
         System.out.print("История просмотра: ");
-        for (Task task : taskManager.getStorageHistory().getHistory()){
+        for (Task task : taskManager.getHistory().getHistory()){
             System.out.print(task.getId() + ", ");
         }
         System.out.println("\n");

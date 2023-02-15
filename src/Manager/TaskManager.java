@@ -65,5 +65,5 @@ public interface TaskManager {
     ArrayList<SubTask> getSubTaskByEpicId (int idSearch);
 
     //геттер хранилища истории
-    InMemoryHistoryManager getStorageHistory();
+    HistoryManager getHistory();
 }
