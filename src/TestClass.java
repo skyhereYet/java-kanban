@@ -189,7 +189,7 @@ class TestClass {
 
     public void getHistory(TaskManager taskManager){
         System.out.print("История просмотра: ");
-        for (Task task : taskManager.getHistory().getHistory()){
+        for (Task task : taskManager.getHistory()){
             System.out.print(task.getId() + ", ");
         }
         System.out.println("\n");

@@ -2,11 +2,11 @@ package Manager;
 
 import Tasks.Task;
 
-import java.util.List;
+import java.util.ArrayList;
 
-public interface HistoryManager<T extends List<Task>> {
+public interface HistoryManager {
     //вывести историю просмотров задач
-    List<Task> getHistory();
+    ArrayList<Task> getHistory();
 
     //заполнить историю просмотров задач
     void add(Task task);

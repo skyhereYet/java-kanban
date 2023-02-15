@@ -3,14 +3,13 @@ package Manager;
 import Tasks.Task;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
     //Хранилище истории просмотров
-    private final List<Task> storageHistory = new ArrayList<>();
+    private final ArrayList<Task> storageHistory = new ArrayList<>();
 
     @Override
-    public List<Task> getHistory() {
+    public ArrayList<Task> getHistory() {
         return storageHistory;
     }
 
