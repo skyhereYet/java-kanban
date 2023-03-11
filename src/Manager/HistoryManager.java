@@ -2,12 +2,15 @@ package Manager;
 
 import Tasks.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface HistoryManager {
     //вывести историю просмотров задач
-    ArrayList<Task> getHistory();
+    List<Task> getHistory();
 
     //заполнить историю просмотров задач
     void add(Task task);
+
+    //удалить задачу из истории просмотров
+    void remove(Task task);
 }

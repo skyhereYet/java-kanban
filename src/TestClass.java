@@ -62,6 +62,7 @@ class TestClass {
         System.out.println("16 - Удалить задачу по id");
         System.out.println("17 - Вывести список SubTask по id EpicTask");
         System.out.println("18 - Вывести историю просмотров");
+        System.out.println("19 - Экспресс тест по ФЗ5");
         System.out.println("0 - Выйти из приложения");
     }
 
@@ -174,6 +175,94 @@ class TestClass {
                 System.out.println("Показать историю просмотра задач");
                 getHistory(taskManager);
 
+            } else if (numberMenu == 19) {
+                System.out.println("Экспресс тест по ФЗ5");
+                //создать первую задачу
+                taskManager.createTask(new Task(
+                        "First Task",
+                        "First simple task for example",
+                        1,
+                        TaskStatus.NEW));
+
+                //создать вторую задачу
+                taskManager.createTask(new Task(
+                        "Second Task",
+                        "Second simple task for example",
+                        2,
+                        TaskStatus.IN_PROGRESS));
+
+                //создать эпик с тремя подзадачами
+                taskManager.createEpicTask(new EpicTask(
+                        "First EpicTask",
+                        "First Epic task for example",
+                        3,
+                        TaskStatus.NEW));
+                taskManager.createSubTask(new SubTask(
+                        "First SubTask",
+                        "First Subtask for example",
+                        TaskStatus.IN_PROGRESS,
+                        3));
+                taskManager.createSubTask(new SubTask(
+                        "Second SubTask",
+                        "First Subtask for example",
+                        TaskStatus.NEW,
+                        3));
+                taskManager.createSubTask(new SubTask(
+                        "Third SubTask",
+                        "Third Subtask for example",
+                        TaskStatus.IN_PROGRESS,
+                        3));
+                //создать эпик без подзадач
+                taskManager.createEpicTask(new EpicTask(
+                        "First EpicTask",
+                        "First Epic task for example",
+                        7,
+                        TaskStatus.NEW));
+
+                //запрос задач в разном порядке
+                taskManager.getTaskById(1);
+                taskManager.getTaskById(2);
+                taskManager.getTaskById(3);
+                taskManager.getEpicTaskById(3);
+                taskManager.getEpicTaskById(4);
+                taskManager.getEpicTaskById(5);
+                taskManager.getEpicTaskById(6);
+                taskManager.getEpicTaskById(7);
+                taskManager.getSubTaskById(3);
+                taskManager.getSubTaskById(4);
+                taskManager.getSubTaskById(5);
+                taskManager.getSubTaskById(6);
+                taskManager.getSubTaskById(7);
+                //вывести историю
+                getHistory(taskManager);
+                //повторить запрос задач в разном порядке
+                taskManager.getEpicTaskById(3);
+                taskManager.getSubTaskById(5);
+                taskManager.getEpicTaskById(4);
+                taskManager.getTaskById(1);
+                taskManager.getSubTaskById(5);
+                taskManager.getEpicTaskById(5);
+                taskManager.getEpicTaskById(6);
+                taskManager.getEpicTaskById(7);
+                taskManager.getSubTaskById(3);
+                taskManager.getTaskById(2);
+                taskManager.getSubTaskById(4);
+                taskManager.getSubTaskById(6);
+                taskManager.getTaskById(3);
+                taskManager.getSubTaskById(7);
+                taskManager.getTaskById(1);
+                //вывести историю
+                getHistory(taskManager);
+                //удалить Task
+                System.out.println("Удаляем Task id=2");
+                taskManager.deleteAnyTaskById(2);
+                //вывести историю
+                getHistory(taskManager);
+                //удалить Epictask с тремя подзадачами
+                System.out.println("Удаляем Эпик id=3 с подзадачами: 4, 5, 6");
+                taskManager.deleteAnyTaskById(3);
+                //вывести историю
+                getHistory(taskManager);
 
             } else if (numberMenu == 0) {
                 //Выход

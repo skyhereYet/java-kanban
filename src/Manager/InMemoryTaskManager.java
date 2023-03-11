@@ -2,6 +2,7 @@ package Manager;
 
 import Tasks.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -31,7 +32,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createEpicTask(EpicTask task) {
         task.setId(createId());
-        storageEpicTask.put(id, task);
+        storageEpicTask.put(task.getId(), task);
         //вносим в хранилище все подзадачи в EpicTask - код был на случай получения эпика с подзадачами,
         // в данной реализации этот функционал исчезает( или с фронта все подзадачи будут поступать новыми subtaskами?
     }
@@ -176,12 +177,22 @@ public class InMemoryTaskManager implements TaskManager {
     //очистка хранилища задач Task
     @Override
     public void eraseStorageTask(){
+        //очистить историю просмотра
+        for (Integer key : storageTask.keySet()) {
+            storageHistory.remove(storageTask.get(key));
+        }
+        //очистить хранилище
         storageTask.clear();
     }
 
     //очистка хранилища задач EpicTask
     @Override
     public void eraseStorageEpicTask(){
+        //очистить историю просмотра
+        for (Integer key : storageEpicTask.keySet()) {
+            storageHistory.remove(storageEpicTask.get(key));
+        }
+        //очистить хранилище
         storageEpicTask.clear();
         eraseStorageSubTask();
     }
@@ -189,7 +200,13 @@ public class InMemoryTaskManager implements TaskManager {
     //очистка хранилища задач SubTask
     @Override
     public void eraseStorageSubTask(){
+        //очистить историю просмотра
+        for (Integer key : storageSubTask.keySet()) {
+            storageHistory.remove(storageSubTask.get(key));
+        }
+        //очистить хранилище
         storageSubTask.clear();
+        //обновить статусы Epic и удалить список подзадач Epic
         for (Integer key : storageEpicTask.keySet()) {
             storageEpicTask.get(key).eraseStorageSubTask();
             storageEpicTask.get(key).setStatus(TaskStatus.NEW);
@@ -199,33 +216,51 @@ public class InMemoryTaskManager implements TaskManager {
     //получение Task по id
     @Override
     public Task getTaskById (int idSearch) {
-        storageHistory.add(storageTask.get(idSearch));
-        return storageTask.get(idSearch);
+        if (storageTask.containsKey(idSearch)) {
+            storageHistory.add(storageTask.get(idSearch));
+            return storageTask.get(idSearch);
+        }
+        return null;
     }
 
     //получение EpicTask по id
     @Override
     public EpicTask getEpicTaskById (int idSearch) {
-        storageHistory.add(storageEpicTask.get(idSearch));
-        return storageEpicTask.get(idSearch);
+        if (storageEpicTask.containsKey(idSearch)) {
+            storageHistory.add(storageEpicTask.get(idSearch));
+            return storageEpicTask.get(idSearch);
+        }
+        return null;
     }
 
     //получение SubTask по id
     @Override
     public Task getSubTaskById (int idSearch) {
-        storageHistory.add(storageSubTask.get(idSearch));
-        return storageSubTask.get(idSearch);
+        if (storageSubTask.containsKey(idSearch)) {
+            storageHistory.add(storageSubTask.get(idSearch));
+            return storageSubTask.get(idSearch);
+        }
+        return null;
     }
 
     //удалить любую задачу по id
     @Override
     public void deleteAnyTaskById (int idSearch) {
         if (storageTask.containsKey(idSearch)) {
+            //удалить из истории просмотра
+            storageHistory.remove(storageTask.get(idSearch));
+            //удалить из хранилища
             storageTask.remove(idSearch);
         } else if (storageEpicTask.containsKey(idSearch)) {
             for (Integer key : storageEpicTask.get(idSearch).getStorageSubtask().keySet()) {
+                //удалить из истории просмотра
+                storageHistory.remove(storageSubTask.get(key));
+                //удалить из хранилища
                 storageSubTask.remove(key);
             }
+            //удалить из истории просмотра
+            storageHistory.remove(storageEpicTask.get(idSearch));
+            //удалить из хранилища
             storageEpicTask.remove(idSearch);
         } else if (storageSubTask.containsKey(idSearch)) {
             //удаляем из EpicTask подзадачу
@@ -234,6 +269,9 @@ public class InMemoryTaskManager implements TaskManager {
             //проверяем статус EpicTask
             changeEpicTask.setStatus(statusCheckerEpicTask(changeEpicTask));
             storageEpicTask.put(changeEpicTask.getId(), changeEpicTask);
+            //удалить из истории просмотра
+            storageHistory.remove(storageSubTask.get(idSearch));
+            //удалить из хранилища
             storageSubTask.remove(idSearch);
         }
     }
@@ -253,7 +291,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //геттер хранилища истории
     @Override
-    public ArrayList<Task> getHistory() {
+    public List<Task> getHistory() {
         return storageHistory.getHistory();
     }
 }

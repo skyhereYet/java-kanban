@@ -38,9 +38,9 @@ public class EpicTask extends Task {
     @Override
     public String toString() {
         return "EpicTask{" +
-                "name='" + getName() + '\'' +
+                "id=" + getId() +
+                ", name='" + getName() + '\'' +
                 ", description='" + getDescription() + '\'' +
-                ", id=" + getId() +
                 ", status='" + getStatus() + '\'' +
                 ", storageSubtask=" + storageSubtask +
                 '}';
