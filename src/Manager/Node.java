@@ -3,12 +3,12 @@ package Manager;
 import Tasks.Task;
 
 final class Node {
-    private final Task taskId;
+    private final Task task;
     private Node prev = null;
     private Node next = null;
 
-    public Node(Task taskId) {
-        this.taskId = taskId;
+    public Node(Task task) {
+        this.task = task;
     }
 
     public void setPrev(Node prev) {
@@ -27,7 +27,7 @@ final class Node {
         return next;
     }
 
-    public Task getTaskId() {
-        return taskId;
+    public Task getTask() {
+        return task;
     }
 }

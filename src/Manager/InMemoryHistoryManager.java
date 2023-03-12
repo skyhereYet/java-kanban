@@ -25,9 +25,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(Task task) {
-        if (historyLinkedList.nodeToRemove(task) != null) {
-            historyLinkedList.removeNode(historyLinkedList.nodeToRemove(task));
-        }
+        historyLinkedList.removeNode(task);
     }
 }
 
@@ -46,7 +44,7 @@ final class CustomLinkedList {
     //добавить в конец списка Node
     public void linkLast(Task task) {
         if (mapHistory.containsKey(task.getId())) {
-            removeNode(mapHistory.get(task.getId()));
+            removeNode(mapHistory.get(task.getId()).getTask());
             mapHistory.remove(task.getId());
         }
         Node newNode = new Node(task);
@@ -58,19 +56,14 @@ final class CustomLinkedList {
     }
 
     //удалить Node
-    public void removeNode(Node nodeToRemove) {
-        nodeToRemove.getPrev().setNext(nodeToRemove.getNext());
-        nodeToRemove.getNext().setPrev(nodeToRemove.getPrev());
-        nodeToRemove.setNext(null);
-        nodeToRemove.setPrev(null);
-    }
-
-    //получить Node для ее удаления из списка
-    public Node nodeToRemove(Task task) {
+    public void removeNode(Task task) {
         if (mapHistory.containsKey(task.getId())) {
-            return mapHistory.get(task.getId());
+            Node nodeToRemove = mapHistory.get(task.getId());
+            nodeToRemove.getPrev().setNext(nodeToRemove.getNext());
+            nodeToRemove.getNext().setPrev(nodeToRemove.getPrev());
+            nodeToRemove.setNext(null);
+            nodeToRemove.setPrev(null);
         }
-        return null;
     }
 
     //собрать список всех задач в ArrayList
@@ -78,7 +71,7 @@ final class CustomLinkedList {
         List<Task> listToReturn = new ArrayList<>();
         Node current = head.getNext();
         while (current != tail) {
-            listToReturn.add(current.getTaskId());
+            listToReturn.add(current.getTask());
             current = current.getNext();
         }
         return listToReturn;
