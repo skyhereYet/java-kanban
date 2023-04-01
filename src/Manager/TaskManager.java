@@ -1,6 +1,7 @@
 package Manager;
 
 import Tasks.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,4 +68,6 @@ public interface TaskManager {
 
     //геттер хранилища истории
     List<Task> getHistory();
+
+
 }

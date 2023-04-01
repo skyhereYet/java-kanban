@@ -7,18 +7,22 @@ import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
     //Хранилище простых задач Task
-    private HashMap<Integer, Task> storageTask = new HashMap<>();
+    protected HashMap<Integer, Task> storageTask = new HashMap<>();
     //Хранилище EpicTask
-    private HashMap<Integer, EpicTask> storageEpicTask = new HashMap<>();
+    protected HashMap<Integer, EpicTask> storageEpicTask = new HashMap<>();
     //Хранилище SubTask
-    private HashMap<Integer, SubTask> storageSubTask = new HashMap<>();
-    private int id = 0;
+    protected HashMap<Integer, SubTask> storageSubTask = new HashMap<>();
+    protected int id = 1;
     //создаем хранилище истории
-    private HistoryManager storageHistory = Managers.getDefaultHistory();
+    protected HistoryManager storageHistory = Managers.getDefaultHistory();
 
     @Override
     public int getId() {
         return id;
+    }
+
+    protected void setId(int id) {
+        this.id = id;
     }
 
     //создаем задачу Task на основе входящего объекта
@@ -141,7 +145,7 @@ public class InMemoryTaskManager implements TaskManager {
     //метод создания уникального id
     @Override
     public int createId(){
-        return ++id;
+        return id++;
     }
 
     //метод возврата списка Task
@@ -235,7 +239,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //получение SubTask по id
     @Override
-    public Task getSubTaskById (int idSearch) {
+    public SubTask getSubTaskById (int idSearch) {
         if (storageSubTask.containsKey(idSearch)) {
             storageHistory.add(storageSubTask.get(idSearch));
             return storageSubTask.get(idSearch);
