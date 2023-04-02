@@ -13,7 +13,8 @@ public class Main {
         testClass.setHashMap2();
         //конец формирования теста
 
-        TaskManager taskManager = Managers.getDefault();
+
+        /*TaskManager taskManager = Managers.getDefault();
         FileBackedTasksManager taskSaveManager1 = Managers.loadFromFile(new File("Resources\\",
                                                                             "kanbanDB.csv"));
         testClass.testFZ5(taskSaveManager1);
@@ -29,6 +30,7 @@ public class Main {
         } catch (ManagerSaveException e) {
             System.out.println(e.getMessage());
         }
-        testClass.startTest(taskSaveManager2);
+        testClass.startTest(taskSaveManager2);*/
+
     }
 }

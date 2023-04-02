@@ -1,15 +1,160 @@
 package Manager;
 import Tasks.*;
-
 import java.io.*;
 import java.util.*;
-
 
 public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager  {
     private final File fileName;
 
     public FileBackedTasksManager(File fileName) {
         this.fileName=fileName;
+    }
+
+    public static void main(String[] args) {
+        FileBackedTasksManager fileBackedTasksManager1 = Managers.loadFromFile(new File("Resources\\",
+                                                                                    "kanbanDB.csv"));
+        makeTest(fileBackedTasksManager1);
+        try {
+            fileBackedTasksManager1.save();
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
+
+        FileBackedTasksManager fileBackedTasksManager2 = Managers.loadFromFile(new File("Resources\\",
+                                                                                        "kanbanDB.csv"));
+        try {
+            fileBackedTasksManager2.read();
+            //вывести Task с первого менеджера
+            System.out.println("Task первого менеджера: ");
+            for (Task task : fileBackedTasksManager1.getStorageTask()) {
+                System.out.println(task);
+            }
+            System.out.println();
+            //вывести Task со второго менеджера
+            System.out.println("Task второго менеджера: ");
+            for (Task task : fileBackedTasksManager2.getStorageTask()) {
+                System.out.println(task);
+            }
+            System.out.println();
+            //вывести SubTask с первого менеджера
+            System.out.println("SubTask первого менеджера: ");
+            for (Task task : fileBackedTasksManager1.getStorageSubTask()) {
+                System.out.println(task);
+            }
+            System.out.println();
+            //вывести SubTask со второго менеджера
+            System.out.println("SubTask второго менеджера: ");
+            for (Task task : fileBackedTasksManager2.getStorageSubTask()) {
+                System.out.println(task);
+            }
+            System.out.println();
+            //вывести EpicTask с первого менеджера
+            System.out.println("EpicTask первого менеджера: ");
+            for (Task task : fileBackedTasksManager1.getStorageSubTask()) {
+                System.out.println(task);
+            }
+            System.out.println();
+            //вывести EpicTask со второго менеджера
+            System.out.println("EpicTask второго менеджера: ");
+            for (Task task : fileBackedTasksManager2.getStorageSubTask()) {
+                System.out.println(task);
+            }
+            System.out.println();
+            //вывести историю
+            System.out.println("История просмотра первого менеджера: ");
+            for (Task task: fileBackedTasksManager1.getHistory()) {
+                System.out.print(task.getId() + ",");
+            }
+            System.out.println("\n");
+            System.out.println("История просмотра второго менеджера: ");
+            for (Task task: fileBackedTasksManager2.getHistory()) {
+                System.out.print(task.getId() + ",");
+            }
+            System.out.println("\n\n"+ "id первого менеджера: " + fileBackedTasksManager1.getId());
+            System.out.println("\n" + "id второго менеджера: " + fileBackedTasksManager2.getId());
+
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void makeTest(FileBackedTasksManager taskManager) {
+        //создать первую задачу
+        taskManager.createTask(new Task(
+                "First Task",
+                "First simple task for example",
+                1,
+                TaskStatus.NEW));
+
+        //создать вторую задачу
+        taskManager.createTask(new Task(
+                "Second Task",
+                "Second simple task for example",
+                2,
+                TaskStatus.IN_PROGRESS));
+
+        //создать эпик с тремя подзадачами
+        taskManager.createEpicTask(new EpicTask(
+                "First EpicTask",
+                "First Epic task for example",
+                3,
+                TaskStatus.NEW));
+        taskManager.createSubTask(new SubTask(
+                "First SubTask",
+                "First Subtask for example",
+                TaskStatus.IN_PROGRESS,
+                3));
+        taskManager.createSubTask(new SubTask(
+                "Second SubTask",
+                "First Subtask for example",
+                TaskStatus.NEW,
+                3));
+        taskManager.createSubTask(new SubTask(
+                "Third SubTask",
+                "Third Subtask for example",
+                TaskStatus.IN_PROGRESS,
+                3));
+        //создать эпик без подзадач
+        taskManager.createEpicTask(new EpicTask(
+                "First EpicTask",
+                "First Epic task for example",
+                7,
+                TaskStatus.NEW));
+
+        //запрос задач в разном порядке
+        taskManager.getTaskById(1);
+        taskManager.getTaskById(2);
+        taskManager.getTaskById(3);
+        taskManager.getEpicTaskById(3);
+        taskManager.getEpicTaskById(4);
+        taskManager.getEpicTaskById(5);
+        taskManager.getEpicTaskById(6);
+        taskManager.getEpicTaskById(7);
+        taskManager.getSubTaskById(3);
+        taskManager.getSubTaskById(4);
+        taskManager.getSubTaskById(5);
+        taskManager.getSubTaskById(6);
+        taskManager.getSubTaskById(7);
+        //вывести историю
+        taskManager.getHistory();
+        //повторить запрос задач в разном порядке
+        taskManager.getEpicTaskById(3);
+        taskManager.getSubTaskById(5);
+        taskManager.getEpicTaskById(4);
+        taskManager.getTaskById(1);
+        taskManager.getSubTaskById(5);
+        taskManager.getEpicTaskById(5);
+        taskManager.getEpicTaskById(6);
+        taskManager.getEpicTaskById(7);
+        taskManager.getSubTaskById(3);
+        taskManager.getTaskById(2);
+        taskManager.getSubTaskById(4);
+        taskManager.getSubTaskById(6);
+        taskManager.getTaskById(3);
+        taskManager.getSubTaskById(7);
+        taskManager.getTaskById(1);
+        //вывести историю
+        taskManager.getHistory();
     }
 
     //сохранить данные менеджера в файл
