@@ -190,22 +190,11 @@ class TestClass {
                 testFZ5(taskManager);
 
             } else if (numberMenu == 20) {
-                System.out.println("Сохранить!");
-                FileBackedTasksManager taskSaveManager = (FileBackedTasksManager) taskManager;
-                try {
-                    taskSaveManager.save();
-                } catch (ManagerSaveException e) {
-                    System.out.println(e.getMessage());
-                }
+                System.out.println("Function not available");
+
 
             } else if (numberMenu == 21) {
-                System.out.println("Читать!");
-                FileBackedTasksManager taskSaveManager = (FileBackedTasksManager) taskManager;
-                try {
-                    taskSaveManager.read();
-                } catch (ManagerSaveException e) {
-                    System.out.println(e.getMessage());
-                }
+                System.out.println("Function not available");
 
 
             } else if (numberMenu == 0) {

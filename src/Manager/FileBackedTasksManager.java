@@ -3,7 +3,7 @@ import Tasks.*;
 import java.io.*;
 import java.util.*;
 
-public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager  {
+public class FileBackedTasksManager extends InMemoryTaskManager {
     private final File fileName;
 
     public FileBackedTasksManager(File fileName) {
@@ -11,19 +11,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     }
 
     public static void main(String[] args) {
-        FileBackedTasksManager fileBackedTasksManager1 = Managers.loadFromFile(new File("Resources\\",
-                                                                                    "kanbanDB.csv"));
-        makeTest(fileBackedTasksManager1);
+        FileBackedTasksManager fileBackedTasksManager1;
+        FileBackedTasksManager fileBackedTasksManager2;
         try {
+            fileBackedTasksManager1 = new FileBackedTasksManager(new File("Resources\\","kanbanDB.csv"));
+            makeTest(fileBackedTasksManager1);
             fileBackedTasksManager1.save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
 
-        FileBackedTasksManager fileBackedTasksManager2 = Managers.loadFromFile(new File("Resources\\",
-                                                                                        "kanbanDB.csv"));
-        try {
-            fileBackedTasksManager2.read();
+            fileBackedTasksManager2 = FileBackedTasksManager.loadFromFile(new File("Resources\\",
+                    "kanbanDB.csv"));
             //вывести Task с первого менеджера
             System.out.println("Task первого менеджера: ");
             for (Task task : fileBackedTasksManager1.getStorageTask()) {
@@ -158,7 +154,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     }
 
     //сохранить данные менеджера в файл
-    public void save() throws ManagerSaveException {
+    private void save() throws ManagerSaveException {
         try (BufferedWriter bWriter = new BufferedWriter(new FileWriter(fileName))) {
             bWriter.write("id,type,name,status,description,epic");
             bWriter.newLine();
@@ -175,41 +171,54 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                 bWriter.newLine();
             }
             bWriter.newLine();
-            bWriter.write(HistoryManager.historyToString(storageHistory));
+            bWriter.write(HistoryUtils.historyToString(storageHistory));
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при сохранении файла");
         }
     }
 
     //загрузить данные из файла
-    public void read() throws ManagerSaveException {
+    public static FileBackedTasksManager loadFromFile(File fileName) throws ManagerSaveException {
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(fileName);
         try (BufferedReader bReader = new BufferedReader(new FileReader(fileName))) {
-            //прочитать первую строку без использования
-            String line = bReader.readLine();
-            //читать файл и заполнять менеджеры
-            while ((line = bReader.readLine()) != null) {
+            String line = "";
+            while (bReader.ready()) {
+                line = bReader.readLine();
+                if (line.equals("id,type,name,status,description,epic")) {
+                    continue;
+                }
+                /*по замечанию - "ты здесь останавливаешься на пустой строке, которая отделяет задачи от истории
+                просмотров, но последнюю строку (где лежит история) в метод fromString() не отдаешь"
+
+                не согласен, последняя строка всё равно попадает в метод fromString (история загружается полностью,
+                все данные соответствуют первой версии менеджера), пока bReader.ready() дает true,
+                таким образом избегаем вероятного исключения при направлении пустой строки в метод fromString
+                и упрощаем обработку исключения
+                */
+
                 if (!line.isEmpty()) {
-                    fromString(line);
+                    fileBackedTasksManager.fromString(line);
                 }
             }
             //определить последний id в файле и присвоить id в менеджере
-            setIdManagerFromFile();
+            fileBackedTasksManager.setIdManagerFromFile();
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при сохранении файла");
         }
+        return fileBackedTasksManager;
     }
 
     //определить последний id в файле и присвоить id в менеджере
     private void setIdManagerFromFile() {
         List<Integer> idCollection = new ArrayList<>();
-        for (Map.Entry<Integer, Task> id : storageTask.entrySet()) {
-            idCollection.add(id.getKey());
+        for (Integer id : storageTask.keySet()) {
+            idCollection.add(id);
         }
-        for (Map.Entry<Integer, EpicTask> id : storageEpicTask.entrySet()) {
-            idCollection.add(id.getKey());
+        for (Integer id : storageEpicTask.keySet()) {
+            idCollection.add(id);
         }
-        for (Map.Entry<Integer, SubTask> id : storageSubTask.entrySet()) {
-            idCollection.add(id.getKey());
+        for (Integer id : storageSubTask.keySet()) {
+            idCollection.add(id);
         }
         Collections.sort(idCollection);
         setId(idCollection.get(idCollection.size()-1)+1);
@@ -241,9 +250,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             createEpicTaskFromFile(task);
 
         } else {
-            List<Integer> historyList = HistoryManager.historyFromString(line);
+            List<Integer> historyList = HistoryUtils.historyFromString(line);
             for (int id : historyList) {
-                storageHistory.add(getAnyTask(id));
+                try {
+                    storageHistory.add(getAnyTask(id));
+                } catch (ManagerSaveException e) {
+                    System.out.println(e.getMessage());
+                } finally {
+                    continue;
+                }
             }
         }
     }
@@ -299,15 +314,19 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     }
 
     //получить Task по id из любого хранилища
-    private Task getAnyTask(Integer id) {
-        if (storageTask.containsKey(id)) {
-            return storageTask.get(id);
-        } else if (storageEpicTask.containsKey(id)) {
-            return storageEpicTask.get(id);
-        } else if (storageSubTask.containsKey(id)) {
-            return storageSubTask.get(id);
-        }
-        return null;
+    private Task getAnyTask(Integer id) throws ManagerSaveException {
+            try {
+                if (storageTask.containsKey(id)) {
+                    return storageTask.get(id);
+                } else if (storageEpicTask.containsKey(id)) {
+                    return storageEpicTask.get(id);
+                } else {
+                    return storageSubTask.get(id);
+                }
+            } catch (NullPointerException e) {
+                throw new ManagerSaveException("Ошибка чтения истории");
+            }
+
     }
 
     @Override
