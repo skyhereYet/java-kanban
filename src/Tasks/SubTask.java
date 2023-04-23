@@ -1,9 +1,15 @@
 package Tasks;
+
+import java.time.Duration;
+import java.time.ZonedDateTime;
+
 public class SubTask extends Task{
    private int idEpicTask;
 
-    public SubTask() {
-        super();
+    public SubTask(String name, String description, int id, TaskStatus status, int idEpicTask,
+                   ZonedDateTime startTime, Duration duration) {
+        super(name, description, id, status, startTime, duration);
+        this.idEpicTask = idEpicTask;
     }
 
     public SubTask(String name, String description, int id, TaskStatus status, int idEpicTask) {
@@ -14,6 +20,10 @@ public class SubTask extends Task{
     public SubTask(String name, String description, TaskStatus status, int idEpicTask) {
         super(name, description, status);
         this.idEpicTask = idEpicTask;
+    }
+
+    public SubTask() {
+
     }
 
     public int getIdEpicTask() {
@@ -32,6 +42,9 @@ public class SubTask extends Task{
                 ", name='" + getName() + '\'' +
                 ", description='" + getDescription() + '\'' +
                 ", status='" + getStatus() + '\'' +
+                ", startTime='" + getStartTime() + '\'' +
+                ", duration='" + getDuration() + '\'' +
+                ", endTime='" + getEndTime() + '\'' +
                 '}';
     }
 }

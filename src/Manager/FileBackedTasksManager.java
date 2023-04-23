@@ -1,6 +1,10 @@
 package Manager;
 import Tasks.*;
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
@@ -46,13 +50,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             System.out.println();
             //вывести EpicTask с первого менеджера
             System.out.println("EpicTask первого менеджера: ");
-            for (Task task : fileBackedTasksManager1.getStorageSubTask()) {
+            for (Task task : fileBackedTasksManager1.getStorageEpicTask()) {
                 System.out.println(task);
             }
             System.out.println();
             //вывести EpicTask со второго менеджера
             System.out.println("EpicTask второго менеджера: ");
-            for (Task task : fileBackedTasksManager2.getStorageSubTask()) {
+            for (Task task : fileBackedTasksManager2.getStorageEpicTask()) {
                 System.out.println(task);
             }
             System.out.println();
@@ -71,6 +75,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
         } catch (ManagerSaveException e) {
             System.out.println(e.getMessage());
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -80,42 +86,73 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 "First Task",
                 "First simple task for example",
                 1,
-                TaskStatus.NEW));
+                TaskStatus.NEW,
+                ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,20,25),
+                        ZoneId.of("Europe/Moscow")),
+                Duration.ofMinutes(5)
+                ));
 
         //создать вторую задачу
         taskManager.createTask(new Task(
                 "Second Task",
                 "Second simple task for example",
                 2,
-                TaskStatus.IN_PROGRESS));
+                TaskStatus.IN_PROGRESS,
+                ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,10,25),
+                        ZoneId.of("Europe/Moscow")),
+                Duration.ofMinutes(35)
+                ));
 
         //создать эпик с тремя подзадачами
         taskManager.createEpicTask(new EpicTask(
                 "First EpicTask",
                 "First Epic task for example",
                 3,
-                TaskStatus.NEW));
+                TaskStatus.NEW,
+                ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,12,25),
+                        ZoneId.of("Europe/Moscow")),
+                Duration.ofMinutes(10)
+                ));
         taskManager.createSubTask(new SubTask(
                 "First SubTask",
                 "First Subtask for example",
+                0,
                 TaskStatus.IN_PROGRESS,
-                3));
+                3,
+                ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,13,25),
+                        ZoneId.of("Europe/Moscow")),
+                Duration.ofMinutes(35)
+                ));
         taskManager.createSubTask(new SubTask(
                 "Second SubTask",
-                "First Subtask for example",
-                TaskStatus.NEW,
-                3));
+                "Second Subtask for example",
+                0,
+                TaskStatus.IN_PROGRESS,
+                3,
+                ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,14,25),
+                        ZoneId.of("Europe/Moscow")),
+                Duration.ofMinutes(30)
+                ));
         taskManager.createSubTask(new SubTask(
                 "Third SubTask",
                 "Third Subtask for example",
+                0,
                 TaskStatus.IN_PROGRESS,
-                3));
+                3,
+                ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,15,25),
+                        ZoneId.of("Europe/Moscow")),
+                Duration.ofMinutes(35)
+                ));
         //создать эпик без подзадач
         taskManager.createEpicTask(new EpicTask(
-                "First EpicTask",
+                "Second EpicTask",
                 "First Epic task for example",
-                7,
-                TaskStatus.NEW));
+                3,
+                TaskStatus.NEW,
+                ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,16,25),
+                        ZoneId.of("Europe/Moscow")),
+                Duration.ofMinutes(10)
+                ));
 
         //запрос задач в разном порядке
         taskManager.getTaskById(1);
@@ -156,7 +193,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     //сохранить данные менеджера в файл
     private void save() throws ManagerSaveException {
         try (BufferedWriter bWriter = new BufferedWriter(new FileWriter(fileName))) {
-            bWriter.write("id,type,name,status,description,epic");
+            bWriter.write("id,type,name,status,description,epic,startTime,duration");
             bWriter.newLine();
             for (Task task : getStorageTask()) {
                 bWriter.write(taskToString(task));
@@ -184,7 +221,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             String line = "";
             while (bReader.ready()) {
                 line = bReader.readLine();
-                if (line.equals("id,type,name,status,description,epic")) {
+                if (line.equals("id,type,name,status,description,epic,startTime,duration")) {
                     continue;
                 }
                 /*по замечанию - "ты здесь останавливаешься на пустой строке, которая отделяет задачи от истории
@@ -203,7 +240,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             //определить последний id в файле и присвоить id в менеджере
             fileBackedTasksManager.setIdManagerFromFile();
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка при сохранении файла");
+            throw new ManagerSaveException("Ошибка при загрузке файла");
         }
         return fileBackedTasksManager;
     }
@@ -231,7 +268,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             Task task = new Task(valuesFromFile[2],
                     valuesFromFile[4],
                     (Integer.parseInt(valuesFromFile[0])),
-                    getStatus(valuesFromFile[3]));
+                    getStatus(valuesFromFile[3]),
+                    ZonedDateTime.parse(valuesFromFile[6]),
+                    Duration.parse(valuesFromFile[7])
+                    );
             createTaskFromFile(task);
 
         } else if ((valuesFromFile[1].equals(TasksType.SUBTASK.toString()))) {
@@ -239,14 +279,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     valuesFromFile[4],
                     (Integer.parseInt(valuesFromFile[0])),
                     getStatus(valuesFromFile[3]),
-                    (Integer.parseInt(valuesFromFile[5])));
+                    (Integer.parseInt(valuesFromFile[5])),
+                    ZonedDateTime.parse(valuesFromFile[6]),
+                    Duration.parse(valuesFromFile[7])
+                    );
             createSubTaskFromFile(task);
 
         } else if ((valuesFromFile[1].equals(TasksType.EPICTASK.toString()))) {
             EpicTask task = new EpicTask(valuesFromFile[2],
                     valuesFromFile[4],
                     (Integer.parseInt(valuesFromFile[0])),
-                    getStatus(valuesFromFile[3]));
+                    getStatus(valuesFromFile[3]),
+                    ZonedDateTime.parse(valuesFromFile[6]),
+                    Duration.parse(valuesFromFile[7])
+                    );
             createEpicTaskFromFile(task);
 
         } else {
@@ -294,14 +340,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     //перевести Task в строку
     private String taskToString(Task task) {
         return String.format(
-                "%s,%s,%s,%s,%s,%s",
+                "%s,%s,%s,%s,%s,%s,%s,%s",
                 task.getId(),
                 (task instanceof SubTask ? TasksType.SUBTASK
                         : task instanceof EpicTask ? TasksType.EPICTASK : TasksType.TASK),
                 task.getName(),
                 task.getStatus(),
                 task.getDescription(),
-                getEpicId(task)
+                getEpicId(task),
+                task.getStartTime(),
+                task.getDuration()
         );
     }
 

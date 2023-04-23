@@ -69,5 +69,10 @@ public interface TaskManager {
     //геттер хранилища истории
     List<Task> getHistory();
 
+    //геттер сортированного по времени списка всех task
+    List<Task> getPrioritizedTasks();
+
+    //валидатор пересечении времени
+    Boolean validationTasks(Task newTask);
 
 }

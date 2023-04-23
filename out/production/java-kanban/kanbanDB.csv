@@ -1,0 +1,10 @@
+id,type,name,status,description,epic,startTime,duration
+1,TASK,First Task,NEW,First simple task for example,[null],2023-04-19T20:25+03:00[Europe/Moscow],PT5M
+2,TASK,Second Task,IN_PROGRESS,Second simple task for example,[null],2023-04-19T10:25+03:00[Europe/Moscow],PT35M
+3,EPICTASK,First EpicTask,IN_PROGRESS,First Epic task for example,[null],2023-04-19T13:25+03:00[Europe/Moscow],PT1H40M
+7,EPICTASK,Second EpicTask,NEW,First Epic task for example,[null],2023-04-19T16:25+03:00[Europe/Moscow],PT10M
+4,SUBTASK,First SubTask,IN_PROGRESS,First Subtask for example,3,2023-04-19T13:25+03:00[Europe/Moscow],PT35M
+5,SUBTASK,Second SubTask,IN_PROGRESS,Second Subtask for example,3,2023-04-19T14:25+03:00[Europe/Moscow],PT30M
+6,SUBTASK,Third SubTask,IN_PROGRESS,Third Subtask for example,3,2023-04-19T15:25+03:00[Europe/Moscow],PT35M
+
+3,5,7,2,4,6,1

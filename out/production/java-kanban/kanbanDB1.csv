@@ -1,0 +1,10 @@
+id,type,name,status,description,epic
+1,TASK,First Task,NEW,First simple task for example,[null]
+2,TASK,Second Task,IN_PROGRESS,Second simple task for example,[null]
+3,EPICTASK,First EpicTask,IN_PROGRESS,First Epic task for example,[null]
+7,EPICTASK,First EpicTask,NEW,First Epic task for example,[null]
+4,SUBTASK,First SubTask,IN_PROGRESS,First Subtask for example,3
+5,SUBTASK,Second SubTask,NEW,First Subtask for example,3
+6,SUBTASK,Third SubTask,IN_PROGRESS,Third Subtask for example,3
+
+3,5,7,2,4,6,1

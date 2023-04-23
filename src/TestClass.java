@@ -1,5 +1,3 @@
-import Manager.FileBackedTasksManager;
-import Manager.ManagerSaveException;
 import Manager.TaskManager;
 import Tasks.*;
 import java.util.HashMap;
@@ -21,7 +19,7 @@ class TestClass {
             TaskStatus.DONE, 7);
     SubTask subTaskTest4 = new SubTask("Fourth SubTask", "Fourth subtask for example", 7,
             TaskStatus.NEW, 5);
-    SubTask updateSubTaskTest1 = new SubTask();
+    SubTask updateSubTaskTest1 = new SubTask("First subtask", "Subtask description", TaskStatus.NEW, 1);
     //создаем списки подзадача
     HashMap<Integer, SubTask> testStorageSubtask1 = new HashMap<>();
     HashMap<Integer, SubTask> testStorageSubtask2 = new HashMap<>();
