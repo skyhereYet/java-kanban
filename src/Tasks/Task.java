@@ -12,8 +12,6 @@ public class Task {
     private ZonedDateTime startTime;
     private Duration duration;
     private ZonedDateTime endTime;
-    //DateTimeFormatter formatterDateTime = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm (ZZZZZ)");
-
 
 
     public Task(String name, String description, int id, TaskStatus status) {

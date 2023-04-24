@@ -9,6 +9,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -104,4 +106,23 @@ class EpicTaskTest extends Task {
                 "Статус Epic задачи отличен от IN_PROGRESS. Текущий статус - " + taskManager.getEpicTaskById(id).getStatus());
     }
 
+    @Test
+    void shouldSortSubTask() {
+       SubTask subtask1 = new SubTask("First subtask", "Subtask description", 1, TaskStatus.NEW,
+                1, zonedDateTime, Duration.ofMinutes(35));
+        ZonedDateTime newZonedDateTime = zonedDateTime.plus(Duration.ofMinutes(60));
+        SubTask subtask2 = new SubTask("Second subtask", "Subtask description", 1, TaskStatus.IN_PROGRESS,
+                1, newZonedDateTime, Duration.ofMinutes(35));
+        newZonedDateTime = zonedDateTime.plus(Duration.ofMinutes(120));
+        SubTask subtask3 = new SubTask("Third subtask", "Subtask description", 1, TaskStatus.DONE,
+                1, newZonedDateTime, Duration.ofMinutes(35));
+
+        taskManager.createSubTask(subtask2);
+        taskManager.createSubTask(subtask3);
+        taskManager.createSubTask(subtask1);
+
+        assertEquals(subtask1, taskManager.getStorageEpicTask().get(0).getStorageSubtaskByTime().get(0));
+        assertEquals(subtask2, taskManager.getStorageEpicTask().get(0).getStorageSubtaskByTime().get(1));
+        assertEquals(subtask3, taskManager.getStorageEpicTask().get(0).getStorageSubtaskByTime().get(2));
+    }
 }

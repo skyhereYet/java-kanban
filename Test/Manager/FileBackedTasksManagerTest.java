@@ -152,7 +152,9 @@ class FileBackedTasksManagerTest extends Task {
         for (Task task1 : fileBackedTasksManager1.getPrioritizedTasks()) {
             assertTrue(fileBackedTasksManager2.getPrioritizedTasks().contains(task1), "Похоже не всё загрузилось");
         }
-        assertEquals(fileBackedTasksManager1.getHistory(), fileBackedTasksManager2.getHistory());
+        for (int key = 0; key < fileBackedTasksManager1.getHistory().size(); key++) {
+            assertEquals(fileBackedTasksManager1.getHistory().get(key), fileBackedTasksManager2.getHistory().get(key));
+        }
     }
 
     @Test

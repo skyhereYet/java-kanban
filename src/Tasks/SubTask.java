@@ -3,7 +3,7 @@ package Tasks;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 
-public class SubTask extends Task{
+public class SubTask extends Task implements Comparable<SubTask> {
    private int idEpicTask;
 
     public SubTask(String name, String description, int id, TaskStatus status, int idEpicTask,
@@ -46,5 +46,17 @@ public class SubTask extends Task{
                 ", duration='" + getDuration() + '\'' +
                 ", endTime='" + getEndTime() + '\'' +
                 '}';
+    }
+
+   @Override
+    public int compareTo(SubTask otherTask) {
+        if (this.getStartTime() == otherTask.getStartTime()) {
+            return 1;
+        } else if (otherTask.getStartTime() == null) {
+            return -1;
+        } else if (this.getStartTime() == null) {
+            return -1;
+        }
+        return this.getStartTime().toLocalTime().compareTo(otherTask.getStartTime().toLocalTime());
     }
 }

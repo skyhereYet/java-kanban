@@ -1,22 +1,13 @@
 package Tasks;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.TreeSet;
+import java.util.*;
 
 public class EpicTask extends Task {
     private HashMap<Integer, SubTask> storageSubtask = new HashMap<>();
-    private TreeSet<SubTask> storageSubtaskByTime = new TreeSet<>(Comparator.nullsLast((task1, task2) -> {
-        if (task1.getStartTime() == task2.getStartTime()) {
-            return 1;
-        } else if (task2.getStartTime() == null) {
-            return -1;
-        } else if (task1.getStartTime() == null) {
-            return -1;
-        }
-        return task1.getStartTime().toLocalTime().compareTo(task2.getStartTime().toLocalTime());}));
+    private ZonedDateTime endTime;
+
+    private ArrayList<SubTask> storageSubtaskByTime = new ArrayList<>();
 
     //конструктор
     public EpicTask(String name, String description, TaskStatus status, ZonedDateTime zonedDateTime, Duration duration) {
@@ -36,11 +27,6 @@ public class EpicTask extends Task {
     public EpicTask(String name, String description, TaskStatus status) {
         super(name, description,status);
     }
-
-    /*public EpicTask(String name, String description, TaskStatus status, ZonedDateTime startTime,
-                    Duration duration) {
-        super(name, description, status, startTime, duration);
-    }*/
 
     //геттер списка подзадач SubTask
     public HashMap<Integer, SubTask> getStorageSubtask() {
@@ -87,14 +73,28 @@ public class EpicTask extends Task {
         storageSubtask.remove(id);
     }
 
+    public ArrayList<SubTask> getStorageSubtaskByTime() {
+        return storageSubtaskByTime;
+    }
 
     public void setTime() {
         if (!storageSubtask.isEmpty()) {
             //отсортировать список subtask по startTime
             storageSubtaskByTime.clear();
             storageSubtask.forEach((key, task) -> storageSubtaskByTime.add(task));
+            Collections.sort(storageSubtaskByTime, (task1, task2) -> {
+                        if (task1.getStartTime() == task2.getStartTime()) {
+                            return 0;
+                        } else if (task2.getStartTime() == null) {
+                            return -1;
+                        } else if (task1.getStartTime() == null) {
+                            return -1;
+                        }
+                        return task1.getStartTime().toLocalTime().compareTo(task2.getStartTime().toLocalTime());
+                    }
+            );
             //установить в Epic startTime по первому subTask
-            setStartTime(storageSubtaskByTime.first().getStartTime());
+            setStartTime(storageSubtaskByTime.get(0).getStartTime());
             //подсчитать duration по всем subTask b присвоить EpicTask
             Duration durationSubtasks = Duration.ofMinutes(0);
             //storageSubtaskByTime.forEach(v-> durationSubtasks.plus(v.getDuration()));
@@ -103,10 +103,32 @@ public class EpicTask extends Task {
             }
             setDuration(durationSubtasks);
             //установить endTime Epictask
-            setEndTime();
+            endTime = storageSubtaskByTime.get(storageSubtaskByTime.size()-1).getEndTime();
         } else {
             setStartTime(null);
             setDuration(null);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return getId() == task.getId() && Objects.equals(getName(), task.getName()) &&
+                Objects.equals(getDescription(), task.getDescription()) &&
+                getStatus() == task.getStatus() && Objects.equals(getStartTime(), task.getStartTime()) &&
+                Objects.equals(getDuration(), task.getDuration()) && Objects.equals(getEndTime(), task.getEndTime());
+    }
+    /*
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        EpicTask epicTask = (EpicTask) o;
+        return Objects.equals(storageSubtask, epicTask.storageSubtask) && Objects.equals(endTime, epicTask.endTime) && Objects.equals(storageSubtaskByTime, epicTask.storageSubtaskByTime);
+    }*/
 }
+
+

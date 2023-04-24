@@ -92,13 +92,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     //метод обновления задачи EpicTask на основе входящего объекта
     @Override
-    public void updateEpicTask(EpicTask task) {
-        if (!validationTasks(task)) {
+    public void updateEpicTask(EpicTask updateEpicTask) {
+        if (!validationTasks(updateEpicTask)) {
             throw new ManagerTimeException("Обнаружено пересечение задач по времени!");
         }
-        if (storageEpicTask.containsKey(task.getId())) {
+        if (storageEpicTask.containsKey(updateEpicTask.getId())) {
             //удаляем подзадачи, т.к. они могут быть удалены в новом EpicTask
-            HashMap<Integer, SubTask> storageTemp = storageEpicTask.get(task.getId()).getStorageSubtask();
+            HashMap<Integer, SubTask> storageTemp = storageEpicTask.get(updateEpicTask.getId()).getStorageSubtask();
             if (storageTemp != null) {
                 for (Integer key : storageTemp.keySet()) {
                     storageTaskByTime.remove(storageSubTask.get(key));
@@ -106,12 +106,11 @@ public class InMemoryTaskManager implements TaskManager {
                 }
             }
             //обновляем EpicTask
-            EpicTask updateEpicTask = task;
-            updateEpicTask.setStorageSubtask(task.getStorageSubtask());
+            updateEpicTask.setStorageSubtask(updateEpicTask.getStorageSubtask());
             updateEpicTask.setTime();
             storageEpicTask.put(updateEpicTask.getId(), updateEpicTask);
             //обновляем хранилище SubTask
-            storageTemp = task.getStorageSubtask();
+            storageTemp = updateEpicTask.getStorageSubtask();
             if (storageTemp != null) {
                 for (Integer key : storageTemp.keySet()) {
                     storageSubTask.put(key, storageTemp.get(key));
@@ -168,8 +167,6 @@ public class InMemoryTaskManager implements TaskManager {
                 status = TaskStatus.IN_PROGRESS;
             } else if ((tempSubTask.getStatus() == TaskStatus.DONE)
                     && (status == null)
-                    //&& (status != TaskStatus.IN_PROGRESS)
-                    //&& (status != TaskStatus.NEW)
                     ) {
                 status = TaskStatus.DONE;
             } else if ((tempSubTask.getStatus() == TaskStatus.NEW)
@@ -235,7 +232,6 @@ public class InMemoryTaskManager implements TaskManager {
         //очистить историю просмотра
         for (Integer key : storageEpicTask.keySet()) {
             storageHistory.remove(storageEpicTask.get(key));
-            //storageTaskByTime.remove(storageEpicTask.get(key)); Эпиков в хранилище нет
         }
         //очистить хранилище
         storageEpicTask.clear();
@@ -362,6 +358,16 @@ public class InMemoryTaskManager implements TaskManager {
     //геттер сортированного по времени списка всех task
     @Override
     public List<Task> getPrioritizedTasks() {
+        /**
+         * По замечанию:
+         * если внимательно причитаться к условиям задания, то цитирую: "Напишите новый метод getPrioritizedTasks,
+         * возвращающий список задач и подзадач в заданном порядке". Задумано так, потому что Эпики сами по себе
+         * каких-то отдельных действий не предполагают.
+         *
+         * Ответ:
+         * Эпики в сортированный список не добавляются, в хранилище заносятся только Task и Subtask в момент их создания
+         * или обновления
+         */
         return new ArrayList<>(storageTaskByTime);
     }
 
