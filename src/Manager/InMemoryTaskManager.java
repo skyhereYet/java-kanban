@@ -98,11 +98,11 @@ public class InMemoryTaskManager implements TaskManager {
         }
         if (storageEpicTask.containsKey(updateEpicTask.getId())) {
             //удаляем подзадачи, т.к. они могут быть удалены в новом EpicTask
-            HashMap<Integer, SubTask> storageTemp = storageEpicTask.get(updateEpicTask.getId()).getStorageSubtask();
+            ArrayList <SubTask> storageTemp = storageEpicTask.get(updateEpicTask.getId()).getStorageSubtask();
             if (storageTemp != null) {
-                for (Integer key : storageTemp.keySet()) {
-                    storageTaskByTime.remove(storageSubTask.get(key));
-                    storageSubTask.remove(key);
+                for (SubTask subTask : storageTemp) {
+                    storageTaskByTime.remove(subTask);
+                    storageSubTask.remove(subTask);
                 }
             }
             //обновляем EpicTask
@@ -112,9 +112,9 @@ public class InMemoryTaskManager implements TaskManager {
             //обновляем хранилище SubTask
             storageTemp = updateEpicTask.getStorageSubtask();
             if (storageTemp != null) {
-                for (Integer key : storageTemp.keySet()) {
-                    storageSubTask.put(key, storageTemp.get(key));
-                    storageTaskByTime.add(storageTemp.get(key));
+                for (SubTask subTask : storageTemp) {
+                    storageSubTask.put(subTask.getId(), subTask);
+                    storageTaskByTime.add(subTask);
                 }
             }
         }
@@ -127,17 +127,18 @@ public class InMemoryTaskManager implements TaskManager {
             throw new ManagerTimeException("Обнаружено пересечение задач по времени!");
         }
         if (storageSubTask.containsKey(task.getId())) {
-            int oldIdEpicTask = storageSubTask.get(task.getId()).getIdEpicTask();
+            SubTask oldSubTask = storageSubTask.get(task.getId());
             SubTask updateSubTask = new SubTask(task.getName(), task.getDescription(), task.getId(), task.getStatus(),
                     task.getIdEpicTask(), task.getStartTime(),task.getDuration());
+
             storageSubTask.put(updateSubTask.getId(), updateSubTask);
             storageTaskByTime.add(updateSubTask);
 
             //проверяем принадлежность SubTask на изменение
-            if (oldIdEpicTask != task.getIdEpicTask()) {
+            if (oldSubTask.getIdEpicTask() != task.getIdEpicTask()) {
                 //storage: удаляем из старого EpicTask подзадачу
-                EpicTask changeEpicTask = storageEpicTask.get(oldIdEpicTask);
-                changeEpicTask.removeSubTask(updateSubTask.getId());
+                EpicTask changeEpicTask = storageEpicTask.get(oldSubTask.getIdEpicTask());
+                changeEpicTask.removeSubTask(storageSubTask.get(updateSubTask.getId()));
                 changeEpicTask.setStatus(statusCheckerEpicTask(changeEpicTask));
                 changeEpicTask.setTime();
                 storageEpicTask.put(changeEpicTask.getId(), changeEpicTask);
@@ -149,6 +150,7 @@ public class InMemoryTaskManager implements TaskManager {
                 storageEpicTask.put(changeEpicTask.getId(), changeEpicTask);
             } else {
                 EpicTask changeEpicTask = storageEpicTask.get(task.getIdEpicTask());
+                changeEpicTask.removeSubTask(oldSubTask);
                 changeEpicTask.addSubtaskToEpicTask(updateSubTask);
                 changeEpicTask.setStatus(statusCheckerEpicTask(changeEpicTask));
                 changeEpicTask.setTime();
@@ -161,8 +163,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public TaskStatus statusCheckerEpicTask(EpicTask changeEpicTask) {
         TaskStatus status = null;
-        for (Integer Key : changeEpicTask.getStorageSubtask().keySet()) {
-            SubTask tempSubTask = changeEpicTask.getStorageSubtask().get(Key);
+        for (SubTask tempSubTask : changeEpicTask.getStorageSubtask()) {
             if (tempSubTask.getStatus() == TaskStatus.IN_PROGRESS) {
                 status = TaskStatus.IN_PROGRESS;
             } else if ((tempSubTask.getStatus() == TaskStatus.DONE)
@@ -297,12 +298,12 @@ public class InMemoryTaskManager implements TaskManager {
             storageTaskByTime.remove(storageTask.get(idSearch));
             storageTask.remove(idSearch);
         } else if (storageEpicTask.containsKey(idSearch)) {
-            for (Integer key : storageEpicTask.get(idSearch).getStorageSubtask().keySet()) {
+            for (SubTask subtask : storageEpicTask.get(idSearch).getStorageSubtask()) {
                 //удалить из истории просмотра
-                storageHistory.remove(storageSubTask.get(key));
+                storageHistory.remove(subtask);
                 //удалить из хранилища
-                storageTaskByTime.remove(storageSubTask.get(key));
-                storageSubTask.remove(key);
+                storageTaskByTime.remove(subtask);
+                storageSubTask.remove(subtask.getId());
             }
             //удалить из истории просмотра
             storageHistory.remove(storageEpicTask.get(idSearch));
@@ -311,7 +312,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else if (storageSubTask.containsKey(idSearch)) {
             //удаляем из EpicTask подзадачу
             EpicTask changeEpicTask = storageEpicTask.get(storageSubTask.get(idSearch).getIdEpicTask());
-            changeEpicTask.removeSubTask(idSearch);
+            changeEpicTask.removeSubTask(storageSubTask.get(idSearch));
             //проверяем статус и время EpicTask
             changeEpicTask.setStatus(statusCheckerEpicTask(changeEpicTask));
             changeEpicTask.setTime();
@@ -328,11 +329,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<SubTask> getSubTaskByEpicId (int idSearch) {
         if (storageEpicTask.containsKey(idSearch)) {
-            ArrayList<SubTask> listSubTask = new ArrayList<>();
-            for (Integer key : storageEpicTask.get(idSearch).getStorageSubtask().keySet()) {
-                listSubTask.add(storageSubTask.get(key));
-            }
-            return listSubTask;
+            return storageEpicTask.get(idSearch).getStorageSubtask();
         }
         return null;
     }

@@ -9,23 +9,20 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTaskTest extends Task {
     TaskManager taskManager;
-    EpicTask task;
     int id;
     ZonedDateTime zonedDateTime;
 
     @BeforeEach
     void createEpicTask() {
-        zonedDateTime = ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,20,
+        zonedDateTime = ZonedDateTime.of(LocalDateTime.of(2023, 4, 19,20,
                                                                         25), ZoneId.of("Europe/Moscow"));
         EpicTask epictask = new EpicTask("NameTask", "Description", 0, TaskStatus.NEW,
-                ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,20,25),
+                ZonedDateTime.of(LocalDateTime.of(2023, 4, 19,20,25),
                         ZoneId.of("Europe/Moscow")), Duration.ofMinutes(35));
         taskManager = Managers.getDefault();
         taskManager.createEpicTask(epictask);
@@ -121,8 +118,8 @@ class EpicTaskTest extends Task {
         taskManager.createSubTask(subtask3);
         taskManager.createSubTask(subtask1);
 
-        assertEquals(subtask1, taskManager.getStorageEpicTask().get(0).getStorageSubtaskByTime().get(0));
-        assertEquals(subtask2, taskManager.getStorageEpicTask().get(0).getStorageSubtaskByTime().get(1));
-        assertEquals(subtask3, taskManager.getStorageEpicTask().get(0).getStorageSubtaskByTime().get(2));
+        assertEquals(subtask1, taskManager.getStorageEpicTask().get(0).getStorageSubtask().get(0));
+        assertEquals(subtask2, taskManager.getStorageEpicTask().get(0).getStorageSubtask().get(1));
+        assertEquals(subtask3, taskManager.getStorageEpicTask().get(0).getStorageSubtask().get(2));
     }
 }
