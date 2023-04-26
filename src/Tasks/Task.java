@@ -11,7 +11,7 @@ public class Task {
     private TaskStatus status;
     private ZonedDateTime startTime;
     private Duration duration;
-    private ZonedDateTime endTime;
+    protected ZonedDateTime endTime;
 
 
     public Task(String name, String description, int id, TaskStatus status) {
@@ -115,7 +115,6 @@ public class Task {
     }
 
     public ZonedDateTime getEndTime() {
-        setEndTime();
         return endTime;
     }
 

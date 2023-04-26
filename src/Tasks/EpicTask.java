@@ -70,7 +70,7 @@ public class EpicTask extends Task {
         if (storageSubtask.isEmpty()) {
             setStartTime(null);
             setDuration(null);
-            setEndTime();
+            setEndTimeEpic(null);
             return;
         }
         //отсортировать список subtask по startTime
@@ -93,27 +93,15 @@ public class EpicTask extends Task {
             if (subtask.getDuration() != null) {
                 durationSubtasks = durationSubtasks.plus(subtask.getDuration());
             }
+            if (subtask.getEndTime() != null) {
+                setEndTimeEpic(subtask.getEndTime());
+            }
         }
         setDuration(durationSubtasks);
-        setEndTime();
-        /**Замечание:
-         * метод расчета endTime, который используется для задач и подзадач не подходит для эпика.
-         * Из ТЗ про это: "время завершения — время окончания самой поздней из задач".
-         * Так же просто взять последнюю из отсортированных задач не подойдет. Потому что есть вероятность,
-         * что они будут с null'ами
-         *
-         * Ответ:
-         * В моей реализации setEndTime время завершения высчитывается на основании startTime и duration. Перебирать
-         * сабтаски для поиска дейтсвительного endTime кажется нецелесообразным, если мы уже 2 параметра проверили ранее
-         * и duration посчитана по всем подзадачам.
-         * Т.е. у нас уже точно известно:
-         *  - если начальное время существует и продолжительность эпика существует, и она выше рассчитана с учетом
-         *      всех подзадач, тогда endTime = startTime + durationEpic;
-         *  - если startTime = null или duration = null - значит endTime тоже null или равна startTime.
-         *
-         *  setTime() писался с целью унификации, если я ошибаюсь, тогда что я не учёл?)))
-         */
+    }
 
+    private void setEndTimeEpic(ZonedDateTime endTime) {
+        super.endTime = endTime;
     }
 
     @Override
