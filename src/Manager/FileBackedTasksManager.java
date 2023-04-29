@@ -224,15 +224,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 if (line.equals("id,type,name,status,description,epic,startTime,duration")) {
                     continue;
                 }
-                /*по замечанию - "ты здесь останавливаешься на пустой строке, которая отделяет задачи от истории
-                просмотров, но последнюю строку (где лежит история) в метод fromString() не отдаешь"
-
-                не согласен, последняя строка всё равно попадает в метод fromString (история загружается полностью,
-                все данные соответствуют первой версии менеджера), пока bReader.ready() дает true,
-                таким образом избегаем вероятного исключения при направлении пустой строки в метод fromString
-                и упрощаем обработку исключения
-                */
-
                 if (!line.isEmpty()) {
                     fileBackedTasksManager.fromString(line);
                 }
