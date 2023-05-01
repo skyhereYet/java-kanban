@@ -14,7 +14,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         this.fileName=fileName;
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         FileBackedTasksManager fileBackedTasksManager1;
         FileBackedTasksManager fileBackedTasksManager2;
         try {
@@ -78,7 +78,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         } catch (IndexOutOfBoundsException e) {
             System.out.println(e.getMessage());
         }
-    }
+    }*/
 
     private static void makeTest(FileBackedTasksManager taskManager) {
         //создать первую задачу
@@ -191,7 +191,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //сохранить данные менеджера в файл
-    private void save() throws ManagerSaveException {
+    public void save() throws ManagerSaveException {
         try (BufferedWriter bWriter = new BufferedWriter(new FileWriter(fileName))) {
             bWriter.write("id,type,name,status,description,epic,startTime,duration");
             bWriter.newLine();
@@ -253,7 +253,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //преобразовать строку в Task и историю запросов
-    private void fromString(String line) {
+    protected void fromString(String line) {
         String[] valuesFromFile = line.split(",");
         if ((valuesFromFile[1].equals(TasksType.TASK.toString()))) {
             Task task = new Task(valuesFromFile[2],
@@ -462,4 +462,27 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return taskToReturn;
     }
 
+    @Override
+    public void eraseStorageTask() throws ManagerSaveException {
+        super.eraseStorageTask();
+        save();
+    }
+
+    @Override
+    public void eraseStorageEpicTask() throws ManagerSaveException {
+        super.eraseStorageEpicTask();
+        save();
+    }
+
+    @Override
+    public void eraseStorageSubTask() throws ManagerSaveException {
+        super.eraseStorageSubTask();
+        save();
+    }
+
+    @Override
+    public void deleteAnyTaskById(int idSearch) throws ManagerSaveException {
+        super.deleteAnyTaskById(idSearch);
+        save();
+    }
 }

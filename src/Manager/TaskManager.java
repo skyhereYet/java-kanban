@@ -43,13 +43,13 @@ public interface TaskManager {
     ArrayList<SubTask> getStorageSubTask();
 
     //очистка хранилища задач Task
-    void eraseStorageTask();
+    void eraseStorageTask() throws ManagerSaveException;
 
     //очистка хранилища задач EpicTask
-    void eraseStorageEpicTask();
+    void eraseStorageEpicTask() throws ManagerSaveException;
 
     //очистка хранилища задач SubTask
-    void eraseStorageSubTask();
+    void eraseStorageSubTask() throws ManagerSaveException;
 
     //получение Task по id
     Task getTaskById (int idSearch);
@@ -61,10 +61,10 @@ public interface TaskManager {
     Task getSubTaskById (int idSearch);
 
     //удалить любую задачу по id
-    void deleteAnyTaskById (int idSearch);
+    void deleteAnyTaskById (int idSearch) throws ManagerSaveException;
 
     //вывести список подзадач EpicTask по id
-    ArrayList<SubTask> getSubTaskByEpicId (int idSearch);
+    ArrayList<SubTask> getSubTaskByEpicId (int idSearch) throws ManagerSaveException;
 
     //геттер хранилища истории
     List<Task> getHistory();
@@ -74,5 +74,7 @@ public interface TaskManager {
 
     //валидатор пересечении времени
     Boolean validationTasks(Task newTask);
+
+    void save() throws ManagerSaveException;
 
 }

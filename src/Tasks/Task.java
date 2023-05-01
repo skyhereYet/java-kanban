@@ -1,5 +1,7 @@
 package Tasks;
 
+import Manager.TasksType;
+
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -12,6 +14,7 @@ public class Task {
     private ZonedDateTime startTime;
     private Duration duration;
     protected ZonedDateTime endTime;
+    protected TasksType tasksType = TasksType.TASK;
 
 
     public Task(String name, String description, int id, TaskStatus status) {

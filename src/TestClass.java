@@ -1,3 +1,4 @@
+import Manager.ManagerSaveException;
 import Manager.TaskManager;
 import Tasks.*;
 import java.util.HashMap;
@@ -68,7 +69,7 @@ class TestClass {
         System.out.println("0 - Выйти из приложения");
     }
 
-    public void startTest(TaskManager taskManager) {
+    public void startTest(TaskManager taskManager) throws ManagerSaveException {
         while (true) {
             printMenu(); //вывод меню
             int numberMenu = scanner.nextInt();

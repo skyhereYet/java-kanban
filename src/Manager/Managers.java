@@ -1,17 +1,37 @@
 package Manager;
 
-import Tasks.Task;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import config.ZonedDateTimeAdapter;
 
 import java.io.File;
+import java.io.IOException;
+import java.time.ZonedDateTime;
 
 public abstract class Managers {
-    public static TaskManager getDefault(){
+    public static TaskManager getDefault() throws IOException, InterruptedException, ManagerSaveException {
+        return new HttpTaskManager(null);
+    }
+
+    public static TaskManager getDefaultInMemoryTaskManager() {
         return new InMemoryTaskManager();
     }
-    public static HistoryManager getDefaultHistory(){
+    public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();
     }
-    public static TaskManager getFilBackedTasksManager(File filename) {
+
+    public static TaskManager getFileBackedTasksManager(File filename) {
         return new FileBackedTasksManager(filename);
+    }
+
+    private static Gson gson;
+
+    public static Gson getGson() {
+        if (gson == null) {
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter());
+            gson = gsonBuilder.create();
+        }
+        return gson;
     }
 }

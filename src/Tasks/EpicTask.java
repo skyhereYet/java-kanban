@@ -1,4 +1,6 @@
 package Tasks;
+import Manager.TasksType;
+
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -9,20 +11,22 @@ public class EpicTask extends Task {
     //конструктор
     public EpicTask(String name, String description, TaskStatus status, ZonedDateTime zonedDateTime, Duration duration) {
         super(name, description, status, zonedDateTime, duration);
-
+        this.tasksType = TasksType.EPICTASK;
     }
     public EpicTask(String name, String description, int id, TaskStatus status, ZonedDateTime startTime,
                     Duration duration) {
         super(name, description, id, status, startTime, duration);
-
+        this.tasksType = TasksType.EPICTASK;
     }
 
     public EpicTask(String name, String description, int id, TaskStatus status) {
         super(name, description, id, status);
+        this.tasksType = TasksType.EPICTASK;
     }
 
     public EpicTask(String name, String description, TaskStatus status) {
         super(name, description,status);
+        this.tasksType = TasksType.EPICTASK;
     }
 
     //геттер списка подзадач SubTask

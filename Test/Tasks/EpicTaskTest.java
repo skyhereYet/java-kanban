@@ -24,7 +24,7 @@ class EpicTaskTest extends Task {
         EpicTask epictask = new EpicTask("NameTask", "Description", 0, TaskStatus.NEW,
                 ZonedDateTime.of(LocalDateTime.of(2023, 4, 19,20,25),
                         ZoneId.of("Europe/Moscow")), Duration.ofMinutes(35));
-        taskManager = Managers.getDefault();
+        taskManager = Managers.getDefaultInMemoryTaskManager();
         taskManager.createEpicTask(epictask);
         id = taskManager.getStorageEpicTask().get(0).getId();
     }

@@ -217,7 +217,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //очистка хранилища задач Task
     @Override
-    public void eraseStorageTask(){
+    public void eraseStorageTask() throws ManagerSaveException {
         //очистить историю просмотра
         for (Integer key : storageTask.keySet()) {
             storageHistory.remove(storageTask.get(key));
@@ -229,7 +229,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //очистка хранилища задач EpicTask
     @Override
-    public void eraseStorageEpicTask(){
+    public void eraseStorageEpicTask() throws ManagerSaveException {
         //очистить историю просмотра
         for (Integer key : storageEpicTask.keySet()) {
             storageHistory.remove(storageEpicTask.get(key));
@@ -241,7 +241,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //очистка хранилища задач SubTask
     @Override
-    public void eraseStorageSubTask(){
+    public void eraseStorageSubTask() throws ManagerSaveException {
         //очистить историю просмотра
         for (Integer key : storageSubTask.keySet()) {
             storageHistory.remove(storageSubTask.get(key));
@@ -290,7 +290,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //удалить любую задачу по id
     @Override
-    public void deleteAnyTaskById (int idSearch) {
+    public void deleteAnyTaskById (int idSearch) throws ManagerSaveException {
         if (storageTask.containsKey(idSearch)) {
             //удалить из истории просмотра
             storageHistory.remove(storageTask.get(idSearch));
@@ -327,7 +327,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //вывести список подзадач EpicTask по id
     @Override
-    public ArrayList<SubTask> getSubTaskByEpicId (int idSearch) {
+    public ArrayList<SubTask> getSubTaskByEpicId (int idSearch) throws ManagerSaveException {
         if (storageEpicTask.containsKey(idSearch)) {
             return storageEpicTask.get(idSearch).getStorageSubtask();
         }
@@ -368,5 +368,10 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         return true;
+    }
+
+    @Override
+    public void save() throws ManagerSaveException {
+
     }
 }

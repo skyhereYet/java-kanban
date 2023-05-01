@@ -1,29 +1,35 @@
 package Tasks;
 
+import Manager.TasksType;
+
 import java.time.Duration;
 import java.time.ZonedDateTime;
 
 public class SubTask extends Task implements Comparable<SubTask> {
    private int idEpicTask;
 
+
     public SubTask(String name, String description, int id, TaskStatus status, int idEpicTask,
                    ZonedDateTime startTime, Duration duration) {
         super(name, description, id, status, startTime, duration);
         this.idEpicTask = idEpicTask;
+        this.tasksType = TasksType.SUBTASK;
     }
 
     public SubTask(String name, String description, int id, TaskStatus status, int idEpicTask) {
         super(name, description, id, status);
         this.idEpicTask = idEpicTask;
+        this.tasksType = TasksType.SUBTASK;
     }
 
     public SubTask(String name, String description, TaskStatus status, int idEpicTask) {
         super(name, description, status);
         this.idEpicTask = idEpicTask;
+        this.tasksType = TasksType.SUBTASK;
     }
 
     public SubTask() {
-
+        this.tasksType = TasksType.SUBTASK;
     }
 
     public int getIdEpicTask() {

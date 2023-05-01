@@ -1,5 +1,6 @@
 package Server;
 
+import Manager.ManagerSaveException;
 import Manager.Managers;
 import Manager.TaskManager;
 import Tasks.EpicTask;
@@ -17,40 +18,38 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpTaskServer {
     private final HttpServer httpServer;
     private static final int PORT = 8080;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-    private static final File filename = new File("Resources\\","kanbanServer.csv");
+    private static final File filename = new File("Resources\\", "kanbanServer.csv");
     private static TaskManager taskManager;
+    private static final Gson GSON = Managers.getGson();
+    private HttpTaskServer httpTaskServer;
 
-    public static void main(String[] args) throws IOException {
-        HttpTaskServer httpTaskServer = new HttpTaskServer();
-        taskManager = Managers.getFilBackedTasksManager(filename);
-
-        //httpTaskServer.httpServer.stop();
-        taskManager.createTask(new Task("Task name1", "Description", 0, TaskStatus.NEW));
-        taskManager.createTask(new Task("Task name2", "Description", 0, TaskStatus.NEW));
-        taskManager.createEpicTask(new EpicTask("EpicTask name", "Description", 0, TaskStatus.NEW));
-        taskManager.createSubTask(new SubTask("Sub task name", "Description", 0, TaskStatus.NEW,3));
-        taskManager.createSubTask(new SubTask("Sub task name", "Description", 0, TaskStatus.NEW,3));
+    public void stop() {
+        httpServer.stop(0);
     }
 
-    public HttpTaskServer() throws IOException {
+    public HttpTaskServer() throws IOException, ManagerSaveException, InterruptedException {
         httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", this::endpointTasks);
         httpServer.start();
-        System.out.println("Server started");
-
-
+        taskManager = Managers.getDefault();
+        System.out.println("HttpTaskServer started, PORT - " + PORT);
     }
 
     private void endpointTasks(HttpExchange httpExchange) throws IOException {
-        System.out.println("...Processing started...");//trash
+        System.out.println("...Processing started...");
         try {
-            Gson gson = new Gson();
             InputStream inputStream = httpExchange.getRequestBody();
             String requestMethod = httpExchange.getRequestMethod();
             String requestUri = httpExchange.getRequestURI().toString();
@@ -61,7 +60,7 @@ public class HttpTaskServer {
 
             int id = -1;
             if (uriArray.length > 3) {
-                id = getIdFromUri(uriArray[uriArray.length-1]);
+                id = getIdFromUri(uriArray[uriArray.length - 1].toString());
                 System.out.println(id);
             }
 
@@ -70,54 +69,87 @@ public class HttpTaskServer {
                 return;
             }
 
+            //обработка GET методов
             if (requestMethod.equals("GET")) {
-                responseString = getRequest(uriArray, id, gson);
+                responseString = getRequest(uriArray, id);
                 writeResponse(httpExchange, responseString, 200);
                 return;
+
+                //обработка POST методов
+            } else if (requestMethod.equals("POST")) {
+                responseString = postAnyTask(uriArray, requestBody);
+                writeResponse(httpExchange, responseString, 200);
+
+                //обработка DELETE методов
             } else if (requestMethod.equals("DELETE")) {
-                responseString = deleteRequest(uriArray, id, gson);
+                responseString = deleteAnyTaskOrEraseStorage(uriArray, id);
                 writeResponse(httpExchange, responseString, 200);
             }
 
 
-
-
             writeResponse(httpExchange, "Error: bad request", 404);
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             if (e.getMessage().isEmpty()) {
                 writeResponse(httpExchange, "Error input data", 404);
             } else {
                 writeResponse(httpExchange, e.getMessage(), 404);
             }
         }
-
-
-
-
-
     }
 
-    private String getRequest(String[] uriArray, int id, Gson gson) throws IOException {
+    private void writeResponse(HttpExchange httpExchange,
+                               String responseString,
+                               int responseCode) throws IOException {
+        if (responseString.isBlank()) {
+            httpExchange.sendResponseHeaders(responseCode, responseString.length());
+        } else {
+            byte[] bytes = responseString.getBytes(DEFAULT_CHARSET);
+            httpExchange.getResponseHeaders().add("Content-Type", "application/json");
+            httpExchange.sendResponseHeaders(responseCode, bytes.length);
+            try (OutputStream os = httpExchange.getResponseBody()) {
+                os.write(bytes);
+            }
+        }
+        httpExchange.close();
+    }
+
+    private int getIdFromUri(String query) throws IOException {
+        try {
+            int id = Integer.parseInt(query.substring(4));
+            if (id <= 0) {
+                throw new IOException();
+            }
+            return id;
+        } catch (Exception e) {
+            throw new IOException("id is not number");
+        }
+    }
+
+
+    private String getRequest(String[] uriArray, int id) throws IOException, ManagerSaveException {
         String responseString = null;
         //GET getHistory
-        if (uriArray.length ==3 && uriArray[2].equals("history")) {
-            return gson.toJson(taskManager.getHistory());
+        if (uriArray.length == 3 && uriArray[2].equals("history")) {
+            List<Integer> toReturn = new ArrayList<>();
+            for (Task task : taskManager.getHistory()) {
+                toReturn.add(task.getId());
+            }
+
+            return GSON.toJson(toReturn);
         }
 
         //GET getPrioritizedTasks
         if (uriArray.length == 2) {
-            return gson.toJson(taskManager.getPrioritizedTasks());
+            return GSON.toJson(taskManager.getPrioritizedTasks());
         }
 
         //GET getStorageTask, getTaskById
         if (uriArray[2].equals("task")) {
-            if  (id == -1) {
-                return gson.toJson(taskManager.getStorageTask());
+            if (id == -1) {
+                return GSON.toJson(taskManager.getStorageTask());
 
-            } else if (id >= 0){
-                responseString = gson.toJson(taskManager.getTaskById(id));
+            } else if (id >= 0) {
+                responseString = GSON.toJson(taskManager.getTaskById(id));
                 if (responseString.equals("null")) {
                     throw new IOException("Task number " + id + " not found");
                 } else {
@@ -130,14 +162,14 @@ public class HttpTaskServer {
         if (uriArray[2].equals("subtask")) {
             if (uriArray.length > 4) {
                 if (uriArray[3].equals("epic")) {
-                    return gson.toJson(taskManager.getSubTaskByEpicId(id));
+                    return GSON.toJson(taskManager.getSubTaskByEpicId(id));
                 }
             }
-            if  (id == -1) {
-                return gson.toJson(taskManager.getStorageSubTask());
+            if (id == -1) {
+                return GSON.toJson(taskManager.getStorageSubTask());
 
-            } else if (id >= 0){
-                responseString = gson.toJson(taskManager.getSubTaskById(id));
+            } else if (id >= 0) {
+                responseString = GSON.toJson(taskManager.getSubTaskById(id));
                 if (responseString.equals("null")) {
                     throw new IOException("Task number " + id + " not found");
                 } else {
@@ -148,10 +180,10 @@ public class HttpTaskServer {
 
         //GET getStorageEpicTask, getStorageEpicTask
         if (uriArray[2].equals("epictask")) {
-            if  (id == -1) {
-                return gson.toJson(taskManager.getStorageEpicTask());
-            } else if (id >= 0){
-                responseString = gson.toJson(taskManager.getEpicTaskById(id));
+            if (id == -1) {
+                return GSON.toJson(taskManager.getStorageEpicTask());
+            } else if (id >= 0) {
+                responseString = GSON.toJson(taskManager.getEpicTaskById(id));
                 if (responseString.equals("null")) {
                     throw new IOException("Task number " + id + " not found");
                 } else {
@@ -163,54 +195,84 @@ public class HttpTaskServer {
     }
 
 
-    private String deleteRequest(String[] uriArray, int id, Gson gson) {
-        String responseString = null;
-        //GET getStorageTask, getTaskById
-        if (uriArray[2].equals("task")) {
-            if  (id == -1) {
-                return gson.toJson(taskManager.getStorageTask());
+    private String deleteAnyTaskOrEraseStorage(String[] uriArray, int id) throws IOException, ManagerSaveException {
+        String responseString;
+        //DELETE deleteTaskById
+        if (uriArray[2].equals("task") || uriArray[2].equals("subtask") || uriArray[2].equals("epictask")) {
+            if (uriArray[uriArray.length - 1].contains("id")) {
+                if (id > 0) {
+                    checkIdInStorage(id);
+                    taskManager.deleteAnyTaskById(id);
+                    return "Succesfully deleted Task with id = " + id;
+                } else if (id < 0) {
+                    throw new IOException("Task with this id was not found");
+                }
+            } else if (uriArray[2].equals("task")) {
+                taskManager.eraseStorageTask();
+                return "Succesfully deleted all Tasks";
+            } else if (uriArray[2].equals("epictask")) {
+                taskManager.eraseStorageEpicTask();
+                return "Succesfully deleted all EpicTasks";
+            } else if (uriArray[2].equals("subtask")) {
+                taskManager.eraseStorageSubTask();
+                return "Succesfully deleted all SubTasks";
+            }
+        }
+        return "Something went wrong";
+    }
 
-            } else if (id >= 0){
-                responseString = gson.toJson(taskManager.getTaskById(id));
-                if (responseString.equals("null")) {
-                    throw new IOException("Task number " + id + " not found");
+    private void checkIdInStorage(int id) throws IOException {
+        List<Integer> listId = new ArrayList<>();
+        taskManager.getStorageTask().forEach(task -> listId.add(task.getId()));
+        taskManager.getStorageEpicTask().forEach(task -> listId.add(task.getId()));
+        taskManager.getStorageSubTask().forEach(task -> listId.add(task.getId()));
+        if (!listId.contains(id)) {
+            throw new IOException("Task with this id was not found");
+        }
+    }
+
+    private String postAnyTask(String[] uriArray, String requestBody) throws IOException {
+        try {
+            List<Integer> listId = new ArrayList<>();
+            if (uriArray[2].equals("task")) {
+                Task task = GSON.fromJson(requestBody, Task.class);
+                taskManager.getStorageTask().forEach(t -> listId.add(t.getId()));
+                if (listId.contains(task.getId())) {
+                    taskManager.updateTask(task);
+                    return "Successfully update exist Task";
+
                 } else {
-                    return responseString;
+                    taskManager.createTask(task);
+                    return "Successfully created new Task";
+                }
+
+            } else if (uriArray[2].equals("epictask")) {
+                EpicTask task = GSON.fromJson(requestBody, EpicTask.class);
+                taskManager.getStorageEpicTask().forEach(t -> listId.add(t.getId()));
+                if (listId.contains(task.getId())) {
+                    taskManager.updateEpicTask(task);
+                    return "Successfully update exist EpicTask";
+
+                } else {
+                    taskManager.createEpicTask(task);
+                    return "Successfully created new EpicTask";
+                }
+
+            } else if (uriArray[2].equals("subtask")) {
+                SubTask task = GSON.fromJson(requestBody, SubTask.class);
+                taskManager.getStorageSubTask().forEach(t -> listId.add(t.getId()));
+                if (listId.contains(task.getId())) {
+                    taskManager.updateSubTask(task);
+                    return "Successfully update exist SubTask";
+
+                } else {
+                    taskManager.createSubTask(task);
+                    return "Successfully created new SubTask";
                 }
             }
-        }
-
-    }
-
-
-    private int getIdFromUri(String query) throws IOException {
-        try {
-            int id = Integer.parseInt(query.substring(4));
-            if (id <=0) {
-                throw new IOException();
-            }
-            return id;
+            return "Error in the request body";
         } catch (Exception e) {
-            throw new IOException("id is not number");
+            throw new IOException("Error in the request body");
         }
     }
-
-    private void writeResponse(HttpExchange httpExchange,
-                               String responseString,
-                               int responseCode) throws IOException {
-        if(responseString.isBlank()) {
-            httpExchange.sendResponseHeaders(responseCode, responseString.length());
-        } else {
-            byte[] bytes = responseString.getBytes(DEFAULT_CHARSET);
-            httpExchange.sendResponseHeaders(responseCode, bytes.length);
-            try (OutputStream os = httpExchange.getResponseBody()) {
-                os.write(bytes);
-            }
-        }
-        httpExchange.close();
-    }
-
-
-
-
 }
