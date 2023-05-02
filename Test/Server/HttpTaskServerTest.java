@@ -1,7 +1,7 @@
 package Server;
 
-import Manager.HttpTaskManager;
-import Manager.ManagerSaveException;
+import Custom_Exception.KVTaskServerException;
+import Custom_Exception.ManagerSaveException;
 import Manager.Managers;
 import Tasks.EpicTask;
 import Tasks.SubTask;
@@ -11,7 +11,6 @@ import com.google.gson.Gson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -29,22 +28,22 @@ class HttpTaskServerTest extends Task {
     String URL = "http://localhost:8080/";
     HttpRequest request;
     HttpClient client= HttpClient.newHttpClient();
-    HttpResponse.BodyHandler<String> handler= HttpResponse.BodyHandlers.ofString();;
     HttpResponse<String> response;
     Gson GSON;
     KVServer kvServer;
     HttpTaskServer httpTaskServer;
 
     @BeforeEach
-    void createManagers() throws IOException, ManagerSaveException, InterruptedException {
+    void createManagers() throws IOException {
         kvServer = new KVServer();
         kvServer.start();
         httpTaskServer = new HttpTaskServer();
+        httpTaskServer.start();
         GSON = Managers.getGson();
     }
 
     @AfterEach
-    void closeManagers() throws IOException, ManagerSaveException, InterruptedException {
+    void closeManagers() {
         kvServer.stop();
         httpTaskServer.stop();
     }
@@ -142,36 +141,40 @@ class HttpTaskServerTest extends Task {
     @Test
     void shouldPostSubTasksAndGetTasks() {
         System.out.println("Start TEST");
-        EpicTask epictask = new EpicTask("Task name1", "Description", 1, TaskStatus.NEW,
+        EpicTask epictask = new EpicTask("Epic name", "Description", 1, TaskStatus.NEW,
                 ZonedDateTime.of(LocalDateTime.of(2023, 4, 19, 20, 25),
                         ZoneId.of("Europe/Moscow")), Duration.ofMinutes(35));
-        SubTask subtask = new SubTask("Task name1", "Description", 2, TaskStatus.NEW, 1,
+        SubTask subtask = new SubTask("Sub name", "Description", 2, TaskStatus.NEW, 1,
                 ZonedDateTime.of(LocalDateTime.of(2023, 4, 19, 20, 25),
                         ZoneId.of("Europe/Moscow")), Duration.ofMinutes(35));
 
         String jsonEpictask = GSON.toJson(epictask);
         String jsonSubtask = GSON.toJson(subtask);
 
-        HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(jsonEpictask);
+        HttpRequest.BodyPublisher epicbody = HttpRequest.BodyPublishers.ofString(jsonEpictask);
         uri = URI.create(URL + "tasks/epictask/");
-        request = HttpRequest.newBuilder()
-                .POST(body)
+        HttpRequest requestEpic = HttpRequest.newBuilder()
+                .POST(epicbody)
                 .uri(uri)
                 .header("Accept", "application/json")
                 .build();
 
-        body = HttpRequest.BodyPublishers.ofString(jsonSubtask);
-        uri = URI.create(URL + "tasks/epictask/");
-        request = HttpRequest.newBuilder()
-                .POST(body)
+        HttpRequest.BodyPublisher subbody = HttpRequest.BodyPublishers.ofString(jsonSubtask);
+        uri = URI.create(URL + "tasks/subtask/");
+        HttpRequest requestSub = HttpRequest.newBuilder()
+                .POST(subbody)
                 .uri(uri)
                 .header("Accept", "application/json")
                 .build();
 
         try {
-            response = client.send(request,HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> responseEpic = client.send(requestEpic, HttpResponse.BodyHandlers.ofString());
             System.out.println(response);
-            assertEquals(200, response.statusCode());
+            assertEquals(200, responseEpic.statusCode());
+
+            HttpResponse<String> responseSub = client.send(requestSub, HttpResponse.BodyHandlers.ofString());
+            System.out.println(response);
+            assertEquals(200, responseSub.statusCode());
 
             uri = URI.create(URL + "tasks/epic/");
             request = HttpRequest.newBuilder()
@@ -185,7 +188,7 @@ class HttpTaskServerTest extends Task {
             assertEquals(epictask, epic);
 
 
-            uri = URI.create(URL + "tasks/epic/");
+            uri = URI.create(URL + "tasks/subtask/");
             request = HttpRequest.newBuilder()
                     .GET()
                     .uri(uri)
@@ -193,7 +196,7 @@ class HttpTaskServerTest extends Task {
                     .build();
             response = client.send(request,HttpResponse.BodyHandlers.ofString());
             SubTask sub = GSON.fromJson(response.body().substring(1, response.body().length()-1), SubTask.class);
-            assertEquals(epictask, sub);
+            assertEquals(subtask, sub);
 
         } catch (IOException | InterruptedException e) {
             System.out.println(e.getMessage());

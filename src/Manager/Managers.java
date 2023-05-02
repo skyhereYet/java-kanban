@@ -5,12 +5,11 @@ import com.google.gson.GsonBuilder;
 import config.ZonedDateTimeAdapter;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.ZonedDateTime;
 
 public abstract class Managers {
-    public static TaskManager getDefault() throws IOException, InterruptedException, ManagerSaveException {
-        return new HttpTaskManager(null);
+    public static TaskManager getDefault(String URL, boolean needLoad) {
+        return new HttpTaskManager(URL, needLoad);
     }
 
     public static TaskManager getDefaultInMemoryTaskManager() {

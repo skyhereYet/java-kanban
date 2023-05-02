@@ -1,28 +1,30 @@
 package Manager;
 
-import Server.KVServer;
+import Custom_Exception.KVTaskServerException;
 import Server.KVTaskClient;
 import Tasks.EpicTask;
 import Tasks.SubTask;
 import Tasks.Task;
 import com.google.gson.Gson;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public class HttpTaskManager extends FileBackedTasksManager{
     KVTaskClient kvTaskClient;
     private static final Gson GSON = Managers.getGson();
-    public HttpTaskManager(File fileName) throws IOException, InterruptedException, ManagerSaveException {
-        super(fileName);
-        kvTaskClient = new KVTaskClient("http://localhost:8078/");
-        //kvTaskClient.maketest();
-        loadFromKVServer();
+    public HttpTaskManager(String URL, boolean needLoad) {
+        super(null);
+        try {
+            kvTaskClient = new KVTaskClient(URL);
+            if (needLoad) {
+                loadFromKVServer();
+            }
+        } catch (KVTaskServerException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
-    public void save() throws ManagerSaveException {
+    public void save() {
         try {
             for (Task task : getStorageTask()) {
                 kvTaskClient.put(String.valueOf(task.getId()), GSON.toJson(task));
@@ -40,7 +42,7 @@ public class HttpTaskManager extends FileBackedTasksManager{
         }
     }
 
-    public void loadFromKVServer() throws ManagerSaveException{
+    public void loadFromKVServer() {
         try {
             List<String> keySet = List.of(kvTaskClient.load("GetKeySet")
                     .substring(1, (kvTaskClient.load("GetKeySet").length() - 1)).split(", "));

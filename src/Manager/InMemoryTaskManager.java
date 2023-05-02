@@ -1,5 +1,7 @@
 package Manager;
 
+import Custom_Exception.ManagerSaveException;
+import Custom_Exception.ManagerTimeException;
 import Tasks.*;
 import java.util.*;
 
@@ -327,7 +329,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //вывести список подзадач EpicTask по id
     @Override
-    public ArrayList<SubTask> getSubTaskByEpicId (int idSearch) throws ManagerSaveException {
+    public ArrayList<SubTask> getSubTaskByEpicId (int idSearch) {
         if (storageEpicTask.containsKey(idSearch)) {
             return storageEpicTask.get(idSearch).getStorageSubtask();
         }

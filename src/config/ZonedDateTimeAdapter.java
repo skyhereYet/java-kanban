@@ -24,7 +24,7 @@ public class ZonedDateTimeAdapter extends TypeAdapter<ZonedDateTime> {
     }
 
     @Override
-    public ZonedDateTime read(final JsonReader jsonReader) throws IOException {
+    public ZonedDateTime read(final JsonReader jsonReader) {
         try {
         String value = jsonReader.nextString();
         return ZonedDateTime.parse(value, DateTimeFormatter.ISO_ZONED_DATE_TIME);

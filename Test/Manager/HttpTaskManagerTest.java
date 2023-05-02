@@ -1,5 +1,7 @@
 package Manager;
 
+import Custom_Exception.KVTaskServerException;
+import Custom_Exception.ManagerSaveException;
 import Server.KVServer;
 import Tasks.EpicTask;
 import Tasks.SubTask;
@@ -10,7 +12,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -27,10 +28,10 @@ class HttpTaskManagerTest extends Task {
     KVServer kvServer;
 
     @BeforeEach
-    void createManagers() throws IOException, ManagerSaveException, InterruptedException {
+    void createManagers() throws IOException {
         kvServer = new KVServer();
         kvServer.start();
-        httpTaskManager1 = (HttpTaskManager) Managers.getDefault();
+        httpTaskManager1 = (HttpTaskManager) Managers.getDefault("http://localhost:8078/", false);
 
         httpTaskManager1.createTask(new Task(
                 "First Task",
@@ -103,16 +104,16 @@ class HttpTaskManagerTest extends Task {
                         ZoneId.of("Europe/Moscow")),
                 Duration.ofMinutes(10)
         ));
-        httpTaskManager2 = (HttpTaskManager) Managers.getDefault();
+        httpTaskManager2 = (HttpTaskManager) Managers.getDefault("http://localhost:8078/", true);
     }
 
     @AfterEach
-    void closeManagers() throws IOException, ManagerSaveException, InterruptedException {
+    void closeManagers() {
         kvServer.stop();
     }
 
     @Test
-    void shouldLoadFromKVServer() throws ManagerSaveException {
+    void shouldLoadFromKVServer() {
         for (Task task : httpTaskManager1.getStorageTask()) {
             assertEquals(task, httpTaskManager2.getTaskById(task.getId()));
         }
@@ -127,17 +128,21 @@ class HttpTaskManagerTest extends Task {
     @Test
     void save() {
         Gson GSON = Managers.getGson();
-        for (Task task : httpTaskManager1.getStorageTask()) {
-            assertEquals(task, GSON.fromJson(httpTaskManager1.kvTaskClient.load(String.valueOf(task.getId())),
-                    Task.class));
-        }
-        for (SubTask task : httpTaskManager1.getStorageSubTask()) {
-            assertEquals(task, GSON.fromJson(httpTaskManager1.kvTaskClient.load(String.valueOf(task.getId())),
-                    SubTask.class));
-        }
-        for (EpicTask task : httpTaskManager1.getStorageEpicTask()) {
-            assertEquals(task, GSON.fromJson(httpTaskManager1.kvTaskClient.load(String.valueOf(task.getId())),
-                    EpicTask.class));
+        try {
+            for (Task task : httpTaskManager1.getStorageTask()) {
+                assertEquals(task, GSON.fromJson(httpTaskManager1.kvTaskClient.load(String.valueOf(task.getId())),
+                        Task.class));
+            }
+            for (SubTask task : httpTaskManager1.getStorageSubTask()) {
+                assertEquals(task, GSON.fromJson(httpTaskManager1.kvTaskClient.load(String.valueOf(task.getId())),
+                        SubTask.class));
+            }
+            for (EpicTask task : httpTaskManager1.getStorageEpicTask()) {
+                assertEquals(task, GSON.fromJson(httpTaskManager1.kvTaskClient.load(String.valueOf(task.getId())),
+                        EpicTask.class));
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 

@@ -5,13 +5,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
-
+import Custom_Exception.KVTaskServerIOException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
-/**
- * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
- */
 public class KVServer {
 	public static final int PORT = 8078;
 	private final String apiToken;
@@ -22,12 +19,11 @@ public class KVServer {
 		apiToken = generateApiToken();
 		server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
 		server.createContext("/register", this::register);
-		server.createContext("/save", this::save);
 		server.createContext("/load", this::load);
-
+		server.createContext("/save", this::save);
 	}
 
-	private void load(HttpExchange h) {
+	private void load(HttpExchange h) throws KVTaskServerIOException {
 		try {
 			System.out.println("\n/load");
 			if (!hasAuth(h)) {
@@ -61,7 +57,7 @@ public class KVServer {
 				h.sendResponseHeaders(405, 0);
 			}
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new KVTaskServerIOException("Error loading data");
 		} finally {
 			h.close();
 		}

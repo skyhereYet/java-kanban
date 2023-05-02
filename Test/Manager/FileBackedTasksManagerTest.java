@@ -1,5 +1,6 @@
 package Manager;
 
+import Custom_Exception.ManagerSaveException;
 import Tasks.EpicTask;
 import Tasks.SubTask;
 import Tasks.Task;
@@ -158,14 +159,14 @@ class FileBackedTasksManagerTest extends Task {
     }
 
     @Test
-    void shouldLoadFromFileWhenFileEmpty() throws ManagerSaveException {
+    void shouldLoadFromFileWhenFileEmpty() {
         File file = new File("Resources\\","kanbanTESTempty.csv");
         assertThrows(IndexOutOfBoundsException.class, () -> FileBackedTasksManager.loadFromFile(file),
                 "Оно загрузилось о.О");
     }
 
     @Test
-    void shouldLoadFromFileWhenFileNotExist() throws ManagerSaveException {
+    void shouldLoadFromFileWhenFileNotExist()  {
         File file = new File("Resources\\","Test.csv");
         assertThrows(ManagerSaveException.class, () -> FileBackedTasksManager.loadFromFile(file),
                 "Оно загрузилось о.О");

@@ -1,27 +1,21 @@
 package Server;
 
-import Manager.ManagerSaveException;
+import Custom_Exception.ManagerSaveException;
 import Manager.Managers;
 import Manager.TaskManager;
 import Tasks.EpicTask;
 import Tasks.SubTask;
 import Tasks.Task;
-import Tasks.TaskStatus;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,22 +23,22 @@ public class HttpTaskServer {
     private final HttpServer httpServer;
     private static final int PORT = 8080;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-    private static final File filename = new File("Resources\\", "kanbanServer.csv");
     private static TaskManager taskManager;
     private static final Gson GSON = Managers.getGson();
-    private HttpTaskServer httpTaskServer;
 
     public void stop() {
         httpServer.stop(0);
     }
 
-    public HttpTaskServer() throws IOException, ManagerSaveException, InterruptedException {
-        httpServer = HttpServer.create();
-        httpServer.bind(new InetSocketAddress(PORT), 0);
+    public HttpTaskServer() throws IOException {
+        httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", this::endpointTasks);
-        httpServer.start();
-        taskManager = Managers.getDefault();
+        taskManager = Managers.getDefault("http://localhost:8078/", false);
         System.out.println("HttpTaskServer started, PORT - " + PORT);
+    }
+
+    public void start() {
+        httpServer.start();
     }
 
     private void endpointTasks(HttpExchange httpExchange) throws IOException {
@@ -196,7 +190,6 @@ public class HttpTaskServer {
 
 
     private String deleteAnyTaskOrEraseStorage(String[] uriArray, int id) throws IOException, ManagerSaveException {
-        String responseString;
         //DELETE deleteTaskById
         if (uriArray[2].equals("task") || uriArray[2].equals("subtask") || uriArray[2].equals("epictask")) {
             if (uriArray[uriArray.length - 1].contains("id")) {

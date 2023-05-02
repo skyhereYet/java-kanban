@@ -1,19 +1,18 @@
 package Manager;
 
+import Custom_Exception.ManagerSaveException;
+import Custom_Exception.ManagerTimeException;
 import Tasks.EpicTask;
 import Tasks.SubTask;
 import Tasks.Task;
 import Tasks.TaskStatus;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -23,11 +22,6 @@ abstract class TaskManagerTest {
     @BeforeEach
     void createManager() {
         taskManager = taskManager = Managers.getDefaultInMemoryTaskManager();
-    }
-
-    @AfterEach
-    void tear() {
-        //прибрать за собой
     }
 
     @Test
