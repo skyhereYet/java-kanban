@@ -1,5 +1,6 @@
 package Server;
 
+import Custom_Exception.KVTaskServerException;
 import Custom_Exception.ManagerSaveException;
 import Manager.Managers;
 import Manager.TaskManager;
@@ -9,7 +10,6 @@ import Tasks.Task;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,15 +30,15 @@ public class HttpTaskServer {
         httpServer.stop(0);
     }
 
-    public HttpTaskServer() throws IOException {
+    public HttpTaskServer() throws IOException, KVTaskServerException {
         httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", this::endpointTasks);
         taskManager = Managers.getDefault("http://localhost:8078/", false);
-        System.out.println("HttpTaskServer started, PORT - " + PORT);
     }
 
     public void start() {
         httpServer.start();
+        System.out.println("HttpTaskServer started, PORT - " + PORT);
     }
 
     private void endpointTasks(HttpExchange httpExchange) throws IOException {
@@ -189,7 +189,8 @@ public class HttpTaskServer {
     }
 
 
-    private String deleteAnyTaskOrEraseStorage(String[] uriArray, int id) throws IOException, ManagerSaveException {
+    private String deleteAnyTaskOrEraseStorage(String[] uriArray, int id)
+            throws IOException, ManagerSaveException, KVTaskServerException {
         //DELETE deleteTaskById
         if (uriArray[2].equals("task") || uriArray[2].equals("subtask") || uriArray[2].equals("epictask")) {
             if (uriArray[uriArray.length - 1].contains("id")) {

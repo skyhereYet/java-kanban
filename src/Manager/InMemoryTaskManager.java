@@ -1,5 +1,6 @@
 package Manager;
 
+import Custom_Exception.KVTaskServerException;
 import Custom_Exception.ManagerSaveException;
 import Custom_Exception.ManagerTimeException;
 import Tasks.*;
@@ -219,7 +220,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //очистка хранилища задач Task
     @Override
-    public void eraseStorageTask() throws ManagerSaveException {
+    public void eraseStorageTask() throws ManagerSaveException, KVTaskServerException {
         //очистить историю просмотра
         for (Integer key : storageTask.keySet()) {
             storageHistory.remove(storageTask.get(key));
@@ -231,7 +232,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //очистка хранилища задач EpicTask
     @Override
-    public void eraseStorageEpicTask() throws ManagerSaveException {
+    public void eraseStorageEpicTask() throws ManagerSaveException, KVTaskServerException {
         //очистить историю просмотра
         for (Integer key : storageEpicTask.keySet()) {
             storageHistory.remove(storageEpicTask.get(key));
@@ -243,7 +244,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //очистка хранилища задач SubTask
     @Override
-    public void eraseStorageSubTask() throws ManagerSaveException {
+    public void eraseStorageSubTask() throws ManagerSaveException, KVTaskServerException {
         //очистить историю просмотра
         for (Integer key : storageSubTask.keySet()) {
             storageHistory.remove(storageSubTask.get(key));
@@ -292,7 +293,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //удалить любую задачу по id
     @Override
-    public void deleteAnyTaskById (int idSearch) throws ManagerSaveException {
+    public void deleteAnyTaskById (int idSearch) throws ManagerSaveException, KVTaskServerException {
         if (storageTask.containsKey(idSearch)) {
             //удалить из истории просмотра
             storageHistory.remove(storageTask.get(idSearch));
@@ -373,7 +374,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void save() throws ManagerSaveException {
+    public void save() throws ManagerSaveException, KVTaskServerException {
 
     }
 }

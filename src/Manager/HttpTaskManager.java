@@ -11,7 +11,7 @@ import java.util.List;
 public class HttpTaskManager extends FileBackedTasksManager{
     KVTaskClient kvTaskClient;
     private static final Gson GSON = Managers.getGson();
-    public HttpTaskManager(String URL, boolean needLoad) {
+    public HttpTaskManager(String URL, boolean needLoad) throws KVTaskServerException {
         super(null);
         try {
             kvTaskClient = new KVTaskClient(URL);
@@ -19,12 +19,12 @@ public class HttpTaskManager extends FileBackedTasksManager{
                 loadFromKVServer();
             }
         } catch (KVTaskServerException e) {
-            System.out.println(e.getMessage());
+            throw new KVTaskServerException("Error KVTaskClient: client creation failed");
         }
     }
 
     @Override
-    public void save() {
+    public void save() throws KVTaskServerException {
         try {
             for (Task task : getStorageTask()) {
                 kvTaskClient.put(String.valueOf(task.getId()), GSON.toJson(task));
@@ -38,11 +38,11 @@ public class HttpTaskManager extends FileBackedTasksManager{
             kvTaskClient.put("History", GSON.toJson(HistoryUtils.historyToString(storageHistory)));
             System.out.println("Successfully saved on KVServer");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new KVTaskServerException("Error KVTaskClient: client save failed");
         }
     }
 
-    public void loadFromKVServer() {
+    public void loadFromKVServer() throws KVTaskServerException {
         try {
             List<String> keySet = List.of(kvTaskClient.load("GetKeySet")
                     .substring(1, (kvTaskClient.load("GetKeySet").length() - 1)).split(", "));
@@ -62,7 +62,10 @@ public class HttpTaskManager extends FileBackedTasksManager{
                     createTaskFromFile(task);
 
                 } else if (key.equals("History")) {
-                    fromString(taskString);
+                    if (taskString.length()>2) {
+                        fromString(taskString);
+                    }
+                    continue;
                 }
                 System.out.println(kvTaskClient.load(key));
             }
@@ -70,7 +73,7 @@ public class HttpTaskManager extends FileBackedTasksManager{
             System.out.println(keySet);
             System.out.println("Successfully load on KVServer");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new KVTaskServerException("Error HttpTaskManager: load from KVServer failed");
         }
     }
 }

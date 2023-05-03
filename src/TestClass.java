@@ -1,3 +1,4 @@
+import Custom_Exception.KVTaskServerException;
 import Custom_Exception.ManagerSaveException;
 import Manager.TaskManager;
 import Tasks.*;
@@ -69,7 +70,7 @@ class TestClass {
         System.out.println("0 - Выйти из приложения");
     }
 
-    public void startTest(TaskManager taskManager) throws ManagerSaveException {
+    public void startTest(TaskManager taskManager) throws ManagerSaveException, KVTaskServerException {
         while (true) {
             printMenu(); //вывод меню
             int numberMenu = scanner.nextInt();

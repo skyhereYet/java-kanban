@@ -1,4 +1,5 @@
 package Manager;
+import Custom_Exception.KVTaskServerException;
 import Custom_Exception.ManagerSaveException;
 import Tasks.*;
 import java.io.*;
@@ -192,7 +193,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //сохранить данные менеджера в файл
-    public void save() throws ManagerSaveException {
+    public void save() throws ManagerSaveException, KVTaskServerException {
         try (BufferedWriter bWriter = new BufferedWriter(new FileWriter(fileName))) {
             bWriter.write("id,type,name,status,description,epic,startTime,duration");
             bWriter.newLine();
@@ -374,7 +375,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super.createTask(task);
         try {
             save();
-        } catch (ManagerSaveException e) {
+        } catch (ManagerSaveException | KVTaskServerException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -384,7 +385,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super.createSubTask(task);
         try {
             save();
-        } catch (ManagerSaveException e) {
+        } catch (ManagerSaveException | KVTaskServerException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -394,7 +395,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super.createEpicTask(task);
         try {
             save();
-        } catch (ManagerSaveException e) {
+        } catch (ManagerSaveException | KVTaskServerException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -404,7 +405,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super.updateTask(task);
         try {
             save();
-        } catch (ManagerSaveException e) {
+        } catch (ManagerSaveException | KVTaskServerException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -414,7 +415,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super.updateEpicTask(updateEpicTask);
         try {
             save();
-        } catch (ManagerSaveException e) {
+        } catch (ManagerSaveException | KVTaskServerException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -424,7 +425,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
        super.updateSubTask(task);
         try {
             save();
-        } catch (ManagerSaveException e) {
+        } catch (ManagerSaveException | KVTaskServerException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -434,7 +435,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         Task taskToReturn = super.getTaskById(idSearch);
         try {
             save();
-        } catch (ManagerSaveException e) {
+        } catch (ManagerSaveException | KVTaskServerException e) {
             System.out.println(e.getMessage());
         }
         return taskToReturn;
@@ -445,7 +446,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         EpicTask taskToReturn = super.getEpicTaskById(idSearch);
         try {
             save();
-        } catch (ManagerSaveException e) {
+        } catch (ManagerSaveException | KVTaskServerException e) {
             System.out.println(e.getMessage());
         }
         return taskToReturn;
@@ -457,32 +458,32 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         SubTask taskToReturn = super.getSubTaskById(idSearch);
         try {
             save();
-        } catch (ManagerSaveException e) {
+        } catch (ManagerSaveException | KVTaskServerException e) {
             System.out.println(e.getMessage());
         }
         return taskToReturn;
     }
 
     @Override
-    public void eraseStorageTask() throws ManagerSaveException {
+    public void eraseStorageTask() throws ManagerSaveException, KVTaskServerException {
         super.eraseStorageTask();
         save();
     }
 
     @Override
-    public void eraseStorageEpicTask() throws ManagerSaveException {
+    public void eraseStorageEpicTask() throws ManagerSaveException, KVTaskServerException {
         super.eraseStorageEpicTask();
         save();
     }
 
     @Override
-    public void eraseStorageSubTask() throws ManagerSaveException {
+    public void eraseStorageSubTask() throws ManagerSaveException, KVTaskServerException {
         super.eraseStorageSubTask();
         save();
     }
 
     @Override
-    public void deleteAnyTaskById(int idSearch) throws ManagerSaveException {
+    public void deleteAnyTaskById(int idSearch) throws ManagerSaveException, KVTaskServerException {
         super.deleteAnyTaskById(idSearch);
         save();
     }

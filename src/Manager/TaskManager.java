@@ -1,5 +1,6 @@
 package Manager;
 
+import Custom_Exception.KVTaskServerException;
 import Custom_Exception.ManagerSaveException;
 import Tasks.*;
 
@@ -44,13 +45,13 @@ public interface TaskManager {
     ArrayList<SubTask> getStorageSubTask();
 
     //очистка хранилища задач Task
-    void eraseStorageTask() throws ManagerSaveException;
+    void eraseStorageTask() throws ManagerSaveException, KVTaskServerException;
 
     //очистка хранилища задач EpicTask
-    void eraseStorageEpicTask() throws ManagerSaveException;
+    void eraseStorageEpicTask() throws ManagerSaveException, KVTaskServerException;
 
     //очистка хранилища задач SubTask
-    void eraseStorageSubTask() throws ManagerSaveException;
+    void eraseStorageSubTask() throws ManagerSaveException, KVTaskServerException;
 
     //получение Task по id
     Task getTaskById (int idSearch);
@@ -62,7 +63,7 @@ public interface TaskManager {
     Task getSubTaskById (int idSearch);
 
     //удалить любую задачу по id
-    void deleteAnyTaskById (int idSearch) throws ManagerSaveException;
+    void deleteAnyTaskById (int idSearch) throws ManagerSaveException, KVTaskServerException;
 
     //вывести список подзадач EpicTask по id
     ArrayList<SubTask> getSubTaskByEpicId (int idSearch) throws ManagerSaveException;
@@ -76,6 +77,6 @@ public interface TaskManager {
     //валидатор пересечении времени
     Boolean validationTasks(Task newTask);
 
-    void save() throws ManagerSaveException;
+    void save() throws ManagerSaveException, KVTaskServerException;
 
 }

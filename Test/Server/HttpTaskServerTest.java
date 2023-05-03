@@ -1,7 +1,6 @@
 package Server;
 
 import Custom_Exception.KVTaskServerException;
-import Custom_Exception.ManagerSaveException;
 import Manager.Managers;
 import Tasks.EpicTask;
 import Tasks.SubTask;
@@ -34,7 +33,7 @@ class HttpTaskServerTest extends Task {
     HttpTaskServer httpTaskServer;
 
     @BeforeEach
-    void createManagers() throws IOException {
+    void createManagers() throws IOException, KVTaskServerException {
         kvServer = new KVServer();
         kvServer.start();
         httpTaskServer = new HttpTaskServer();

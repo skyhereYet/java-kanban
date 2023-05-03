@@ -1,5 +1,6 @@
 package Manager;
 
+import Custom_Exception.KVTaskServerException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import config.ZonedDateTimeAdapter;
@@ -8,7 +9,7 @@ import java.io.File;
 import java.time.ZonedDateTime;
 
 public abstract class Managers {
-    public static TaskManager getDefault(String URL, boolean needLoad) {
+    public static TaskManager getDefault(String URL, boolean needLoad) throws KVTaskServerException {
         return new HttpTaskManager(URL, needLoad);
     }
 

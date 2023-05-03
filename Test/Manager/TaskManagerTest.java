@@ -1,5 +1,6 @@
 package Manager;
 
+import Custom_Exception.KVTaskServerException;
 import Custom_Exception.ManagerSaveException;
 import Custom_Exception.ManagerTimeException;
 import Tasks.EpicTask;
@@ -238,7 +239,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void shouldChangeStatusEpicTestDONE() throws ManagerSaveException {
+    void shouldChangeStatusEpicTestDONE() throws ManagerSaveException, KVTaskServerException {
         EpicTask epictask = new EpicTask("NameEpicTask", "Description", 1, TaskStatus.NEW);
         SubTask subtask1 = new SubTask("NameSubTask", "Description", 2,
                 TaskStatus.NEW, 1,
@@ -308,14 +309,14 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void shouldEraseStorageTaskWhenEmpty() throws ManagerSaveException {
+    void shouldEraseStorageTaskWhenEmpty() throws ManagerSaveException, KVTaskServerException {
         taskManager.eraseStorageTask();
         assertTrue(taskManager.getStorageTask().isEmpty());
         assertTrue(taskManager.getPrioritizedTasks().isEmpty());
     }
 
     @Test
-    void shouldEraseStorageTaskWhenIsNotEmpty() throws ManagerSaveException {
+    void shouldEraseStorageTaskWhenIsNotEmpty() throws ManagerSaveException, KVTaskServerException {
         Task task = new Task("NameTask", "Description", 0, TaskStatus.NEW,
                 ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,20,25),
                         ZoneId.of("Europe/Moscow")), Duration.ofMinutes(35));
@@ -328,14 +329,14 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void shouldEraseStorageEpicTaskWhenEmpty() throws ManagerSaveException {
+    void shouldEraseStorageEpicTaskWhenEmpty() throws ManagerSaveException, KVTaskServerException {
         taskManager.eraseStorageEpicTask();
         assertTrue(taskManager.getStorageEpicTask().isEmpty());
         assertTrue(taskManager.getPrioritizedTasks().isEmpty());
     }
 
     @Test
-    void shouldEraseStorageEpicTaskWhenIsNotEmpty() throws ManagerSaveException {
+    void shouldEraseStorageEpicTaskWhenIsNotEmpty() throws ManagerSaveException, KVTaskServerException {
         EpicTask epictask = new EpicTask("NameEpicTask", "Description", 1, TaskStatus.NEW);
         SubTask subtask = new SubTask("NameSubTask", "Description", 2,
                 TaskStatus.NEW, 1,
@@ -353,14 +354,14 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void shouldEraseStorageSubTaskWhenEmpty() throws ManagerSaveException {
+    void shouldEraseStorageSubTaskWhenEmpty() throws ManagerSaveException, KVTaskServerException {
         taskManager.eraseStorageSubTask();
         assertTrue(taskManager.getStorageSubTask().isEmpty());
         assertTrue(taskManager.getPrioritizedTasks().isEmpty());
     }
 
     @Test
-    void shouldEraseStorageSubTaskWhenIsNotEmpty() throws ManagerSaveException {
+    void shouldEraseStorageSubTaskWhenIsNotEmpty() throws ManagerSaveException, KVTaskServerException {
         EpicTask epictask = new EpicTask("NameEpicTask", "Description", 1, TaskStatus.NEW);
         SubTask subtask = new SubTask("NameSubTask", "Description", 2,
                 TaskStatus.NEW, 1,
@@ -444,7 +445,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void shoulDeleteAnyTaskByIdWhenIdExist() throws ManagerSaveException {
+    void shoulDeleteAnyTaskByIdWhenIdExist() throws ManagerSaveException, KVTaskServerException {
         Task task = new Task("NameTask", "Description", 0, TaskStatus.NEW,
                 ZonedDateTime.of(LocalDateTime.of(2023, 04, 19,20,25),
                         ZoneId.of("Europe/Moscow")), Duration.ofMinutes(35));
@@ -550,7 +551,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void shouldGetHistoryWhenHistoryAfterRemoveTaskIntermediate() throws ManagerSaveException {
+    void shouldGetHistoryWhenHistoryAfterRemoveTaskIntermediate() throws ManagerSaveException, KVTaskServerException {
         Task task1 = getNewTask();
         Task task2 = getNewTask();
         Task task3 = getNewTask();
@@ -571,7 +572,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void shouldGetHistoryWhenHistoryAfterRemoveFirstTask() throws ManagerSaveException {
+    void shouldGetHistoryWhenHistoryAfterRemoveFirstTask() throws ManagerSaveException, KVTaskServerException {
         Task task1 = getNewTask();
         Task task2 = getNewTask();
         Task task3 = getNewTask();
@@ -592,7 +593,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void shouldGetHistoryWhenHistoryAfterRemoveLastTask() throws ManagerSaveException {
+    void shouldGetHistoryWhenHistoryAfterRemoveLastTask() throws ManagerSaveException, KVTaskServerException {
         Task task1 = getNewTask();
         Task task2 = getNewTask();
         Task task3 = getNewTask();

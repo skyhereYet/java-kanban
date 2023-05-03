@@ -1,7 +1,6 @@
 package Manager;
 
 import Custom_Exception.KVTaskServerException;
-import Custom_Exception.ManagerSaveException;
 import Server.KVServer;
 import Tasks.EpicTask;
 import Tasks.SubTask;
@@ -28,7 +27,7 @@ class HttpTaskManagerTest extends Task {
     KVServer kvServer;
 
     @BeforeEach
-    void createManagers() throws IOException {
+    void createManagers() throws IOException, KVTaskServerException {
         kvServer = new KVServer();
         kvServer.start();
         httpTaskManager1 = (HttpTaskManager) Managers.getDefault("http://localhost:8078/", false);
