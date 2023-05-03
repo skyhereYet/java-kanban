@@ -1,8 +1,6 @@
 package Tasks;
 
-import Manager.FileBackedTasksManager;
-import Manager.Managers;
-import Manager.TaskManager;
+
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -11,8 +9,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.TreeSet;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class TaskTest {
 
